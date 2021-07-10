@@ -114,9 +114,9 @@ void MinHeap::MinHeapify(int i)
 
 void swap(int *x, int *y)
 {
-    int temp = *x;
+    int Temp = *x;
     *x = *y;
-    *y = temp;
+    *y = Temp;
 }
 
 int main()
@@ -136,16 +136,16 @@ int main()
     while (MHeap.Size() > 1)
     {
 
-        int temp;
-        cin >> temp;
+        int Temp;
+        cin >> Temp;
         for (int i = 0; i < n; i++)
         {
-            if (temp == arr[i])
+            if (Temp == arr[i])
             {
-                MHeap.DeleteKey(temp);
-                temp += MHeap.DeleteMin();
-                MHeap.Insert(temp);
-                cout << temp;
+                MHeap.DeleteKey(Temp);
+                Temp += MHeap.DeleteMin();
+                MHeap.Insert(Temp);
+                cout << Temp;
 
                 break;
             }

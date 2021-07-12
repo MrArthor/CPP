@@ -1,84 +1,61 @@
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
-using Vector = vector<int>;
-void printVector(const Vector &a)
+
+
+void maxHeapify(int arr[], int n, int idx)
 {
-    for (int e : a)
-    {
-        cout << e << " ";
-    }
+	if (idx >= n)
+		return;
+	int l = 2 * idx + 1;
+	int r = 2 * idx + 2;
+	int max;
+	if (l < n && arr[l] > arr[idx])
+		max = l;
+	else
+		max = idx;
+	if (r < n && arr[r] > arr[max])
+		max = r;
+
+	
+	if (max != idx) {
+		swap(arr[max], arr[idx]);
+		maxHeapify(arr, n, max);
+	}
 }
-Vector mergeThree(Vector &A, Vector &B, Vector &C, int x)
+
+void buildMaxHeap(int arr[], int n)
 {
-    int i, j, k;
-    Vector D;
-    D.reserve(x + x + x);
-    i = j = k = 0;
-    while (i < x && j < x && k < x)
-    {
-        int m = min(min(A[i], B[j]), C[k]);
-        D.push_back(m);
-        if (m == A[i])
-            i++;
-        else if (m == B[j])
-            j++;
-        else
-            k++;
-    }
-    while (i < x && j < x) //C exhausted
-    {
-        if (A[i] <= B[j])
-        {
-            D.push_back(A[i]);
-            i++;
-        }
-        else
-        {
-            D.push_back(B[j]);
-            j++;
-        }
-    }
-    while (i < x && k < x) //B exhausted
-    {
-        if (A[i] <= C[k])
-        {
-            D.push_back(A[i]);
-            i++;
-        }
-        else
-        {
-            D.push_back(C[k]);
-            k++;
-        }
-    }
-    while (j < x && k < x) //A exhausted
-    {
-        if (B[j] <= C[k])
-        {
-            D.push_back(B[j]);
-            j++;
-        }
-        else
-        {
-            D.push_back(C[k]);
-            k++;
-        }
-    }
-    while (k < x) //A and B exhausted
-        D.push_back(C[k++]);
-    while (i < x) //B and C exhausted
-        D.push_back(A[i++]);
-    while (j < x) //A and C exhausted
-        D.push_back(B[j++]);
-    return D;
+
+	for (int i = n / 2 - 1; i >= 0; i--)
+		maxHeapify(arr, n, i);
 }
+
+void mergeHeaps(int merged[], int a[], int b[],
+				int n, int m)
+{
+
+	for (int i = 0; i < n; i++)
+		merged[i] = a[i];
+	for (int i = 0; i < m; i++)
+		merged[n + i] = b[i];
+
+	
+	buildMaxHeap(merged, n + m);
+}
+
 int main()
 {
-    Vector A = {5, 10, 12, 15, 20};
-    Vector B = {1, 3, 17, 19, 23};
-    Vector C = {4, 9, 13, 18, 21};
-    int y = 5; //size of the arrays
-    printVector(mergeThree(A, B, C, y));
-    return 0;
+	int a[] = { 10, 5, 6, 2 };
+	int b[] = { 12, 7, 9 };
+
+	int n = sizeof(a) / sizeof(a[0]);
+	int m = sizeof(b) / sizeof(b[0]);
+
+	int merged[m + n];
+	mergeHeaps(merged, a, b, n, m);
+
+	for (int i = 0; i < n + m; i++)
+		cout << merged[i] << " ";
+
+	return 0;
 }

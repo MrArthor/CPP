@@ -1,18 +1,31 @@
 #include <stdio.h>
 #include <math.h>
-
+void foo();
 int main()
 {
-    fflush(stdin);
-    int number;
-    scanf("%d", &number);
-    if (number >= 0)
+    int a = 5;
+    switch (a)
     {
-        printf("\nPositive Numbre ");
+    case 0:
+        printf("0 ");
+    case 3:
+        printf("3 ");
+    case 5:
+        printf("5 ");
+    default:
+        printf("Rabbit ");
     }
-    else
+    a = 10;
+    switch (a)
     {
-        printf("\nNegative Number");
+    case 0:
+        printf("0 ");
+    case 3:
+        printf("3 ");
+    case 5:
+        printf("5 ");
+    default:
+        printf("Rabbit ");
     }
     return 0;
 }

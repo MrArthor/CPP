@@ -22,24 +22,26 @@ struct Node
 	int Val;
 	Information *Data;
 	Node *Next;
+	int Traffic;
 };
 
 // Data structure to store a graph edge
 struct Edge
 {
-	int Source, Destination;
+	int Source, Destination, Traffic;
 };
 
 class Graph
 {
 	// Function to allocate a new node for the adjacency list
-	Node *GetAdjListNode(int Destination, Node *Head)
+	Node *GetAdjListNode(int Destination, Node *Head, int Traffic)
 	{
 		Node *newNode = new Node;
 		newNode->Val = Destination;
 
 		// point new node to the current Head
 		newNode->Next = Head;
+		newNode->Traffic = Traffic;
 		newNode->Data = &Info[Destination];
 		return newNode;
 	}
@@ -52,7 +54,7 @@ public:
 	Node **Head;
 
 	// Constructor
-	Graph(Edge Edges[], int n, int N)
+	Graph(Edge Edges[], int n, int N )
 	{
 		// allocate memory
 		Head = new Node *[N]();
@@ -69,16 +71,16 @@ public:
 		{
 			int Source = Edges[i].Source;
 			int Destination = Edges[i].Destination;
-
+			int Traffic = Edges[i].Traffic;
 			// insert at the beginning
-			Node *newNode = GetAdjListNode(Destination, Head[Source]);
+			Node *newNode = GetAdjListNode(Destination, Head[Source], Traffic);
 
 			// point Head pointer to the new node
 			Head[Source] = newNode;
 
 			// uncomment the following code for undirected graph
 
-			newNode = GetAdjListNode(Source, Head[Destination]);
+			newNode = GetAdjListNode(Source, Head[Destination], Traffic);
 
 			// change Head pointer to point to the new node
 			Head[Destination] = newNode;
@@ -133,7 +135,10 @@ Graph *GraphInsert()
 			{9, 2},
 			{9, 3},
 			{10, 9}};
-
+	for (int i = 0; i < sizeof(Edges) / sizeof(Edges[0]); i++)
+	{
+		Edges->Traffic=rand()%100+1;
+	}
 	// total number of nodes in the graph
 	int N = 11;
 
@@ -141,7 +146,7 @@ Graph *GraphInsert()
 	int n = 19;
 
 	// construct graph
-	Graph *Graphic= new Graph(Edges, n, N);
+	Graph *Graphic = new Graph(Edges, n, N);
 
 	// print adjacency list representation of a graph
 	for (int i = 0; i < N; i++)
@@ -152,12 +157,12 @@ Graph *GraphInsert()
 		// print all its neighboring vertices
 		printList(Graphic->Head[i]);
 	}
-return Graphic;
+	return Graphic;
 }
-// Graph implementation in C++ without using STL
+//--Graph implementation in C++ without using STL
 int main()
 {
-	Graph *G=GraphInsert();
-	
+	Graph *G = GraphInsert();
+
 	return 0;
 }

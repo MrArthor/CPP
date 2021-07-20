@@ -1,7 +1,8 @@
 #include <iostream>
 #include <ctime>
+
 #include <windows.h>
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 //Total assets including both hospitals and warehouse
 #define Assets 11
 
@@ -46,7 +47,6 @@ void printList(Node *ptr)
 		cout << ptr->Data->Name << " has traffic level " << ptr->Traffic << "\n";
 		ptr = ptr->Next;
 	}
-	Sleep(3000);
 	cout << endl;
 }
 
@@ -488,9 +488,8 @@ int main()
 	srand(time(nullptr)); //use current time as seed for random generator
 
 	Graph *G = CreateMap();
-	//	Sleep(10000);
-	cout << " \n\n-------- Welcome to Covid-19 Resource Delivery System ----------- \n\n";
-	Sleep(5000);
+	Sleep(1000);
+	cout << " -------- Welcome to Covid-19 Resource Delivery System ----------- \n\n";
 
 	cout << "For the purpose of this demonstration, we have considered 8 hospitals and 3 warehouses\n";
 
@@ -507,9 +506,7 @@ int main()
 			cout << "Warehouse : " << Info[i].Name << ", " << Info[i].Address << endl;
 		}
 	}
-
 	cout << "\n";
-	Sleep(5000);
 	G->printGraph();
 
 	cout << "Enter the name of hospital that require resources : ";
@@ -526,7 +523,7 @@ int main()
 
 	int dest = G->findDestinationId(hospital, a, b, c);
 	cout << endl;
-	Sleep(5000);
+
 	if (dest == -1)
 	{
 		cout << "Invalid hospital name. Please enter a valid hospital name." << endl;
@@ -541,8 +538,9 @@ int main()
 			if (temp.dist < fastest.dist)
 				fastest = temp;
 		}
-		Sleep(3000);
+
 		cout << "\nAmong these, the most efficient warehouse for delivering the required resources is : ";
+
 		cout << Info[fastest.Id].Name << endl;
 	}
 	system("pause");

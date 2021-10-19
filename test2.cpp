@@ -10,7 +10,8 @@ Virus : mal_code.c
     *host;
 int done, a = 0;
 unsigned long x;
-char buff[2048] struct ffblk ffblk;
+char buff[2048];
+ struct ffblk ffblk;
 clock_t st, end;
 void main()
 {

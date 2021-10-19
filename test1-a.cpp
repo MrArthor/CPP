@@ -1,55 +1,33 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 
 using namespace std;
-string Encryptor(string PlainText, int Key)
+string encrypt(string s, int key)
 {
-     string Final = "";
-
-     // traverse PlainText
-     for (int i = 0; i < PlainText.length(); i++)
+     string dec;
+     for (int i = 0; i < s.length(); i++)
      {
-          // apply transformation to each character
-          // Encryptor Uppercase letters
-          if (isupper(PlainText[i]))
-               Final += char(int(PlainText[i] + Key - 65) % 26 + 65);
-
-          // Encryptor Lowercase letters
-          else
-               Final += char(int(PlainText[i] + Key - 97) % 26 + 97);
+          int temp = (s[i] * key) % 26;
+          dec.push_back((char)temp);
      }
-
-     // Return the Finaling string
-     return Final;
+     return dec;
 }
 
-string Decryptor(string PlainText, int Key)
+string decrypt(string s, int key)
 {
-     string Final = "";
-
-     // traverse PlainText
-     for (int i = 0; i < PlainText.length(); i++)
+     string enc;
+     for (int i = 0; i < s.length(); i++)
      {
-          // apply transformation to each character
-          // Encryptor Uppercase letters
-          if (isupper(PlainText[i]))
-               Final += char(int(PlainText[i] - Key - 65 + 26) % 26 + 65);
-
-          // Encryptor Lowercase letters
-          else
-               Final += char(int(PlainText[i] - Key - 97 + 26) % 26 + 97);
+          int temp = (s[i] / key) % 26;
+          enc.push_back((char)temp);
      }
-
-     // Return the Finaling string
-     return Final;
+     return enc;
 }
 
-int main()
-{
-     cout << "The Plain Text Is THIS IS LAB TEST ONE " << endl;
-     cout << "Encrypted Text Is: - ";
-     cout << Encryptor("THIS IS LAB TEST ONE", 20);
-     cout << endl;
-     cout << "The Decrypted Version Of Encrption Is : -";
-     cout << Decryptor(Encryptor("THIS IS LAB TEST ONE", 20), 20);
+int main(){
+
+cout<<encrypt("THIS IS LAB TEST ONE",15);
+cout<<endl;
+cout<<decrypt(encrypt("THIS IS LAB TEST ONE",15),15);
      return 0;
+
 }

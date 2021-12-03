@@ -27,39 +27,24 @@ int cscan(int, int[], int[], int);
 int fifo(int, int[], int[], int);
 int sstf(int, int[], int[], int);
 
-/*
-int main()
-
-Author: Jorge Gonzalez
-
-Date: 11/20/2019
-
-Description: runs 1000 simulations of of the following policies; scan, cscan, fifo, sstf. Random # of requests are stored with random track and sector numbers as well. The Average of each policy is calculated and displayed
-
-Parameters
-n/a
- */
 int main()
 {
-    srand(time(NULL));                  //random number seed
-    int initialHeadLocation = 5000 / 2; //the initial track will begin in the middle
+    srand(time(NULL));       
+    int initialHeadLocation = 5000 / 2; 
     int scanSeekTimeAverage = 0, cscanSeekTimeAverage = 0;
     int fifoSeekTimeAverage = 0, sstfSeekTimeAverage = 0;
 
-    //simulations will run for 1000 times
     for (int i = 0; i < 10; i++)
     {
-        int requests = uniform(500, 1000); //each simulation will have different amount of requests
+        int requests = uniform(500, 1000); 
         int requestedTracks[requests];
         int requestedSectors[requests];
-        for (int y = 0; y < requests; y++) //the requested tracks and sectors are randomized and stored in an array
+        for (int y = 0; y < requests; y++)
         {
-            requestedTracks[y] = uniform(0, 5000);   //tracks are limited between 0 and 5000
-            requestedSectors[y] = uniform(0, 12000); //sectors are limited between 0 and 12,000
+            requestedTracks[y] = uniform(0, 5000);   
+            requestedSectors[y] = uniform(0, 12000); 
         }
-        /*
-	This section will display the number of requests as well of each avg seek time of each simulation
-       */
+        
         cout << "Number of Requests: " << requests << endl;
 
         scanSeekTimeAverage += scan(requests, requestedTracks, requestedSectors, initialHeadLocation);
@@ -74,14 +59,11 @@ int main()
         cout << "------------------------" << endl;
     }
 
-    /*
-    Simulations are calculated by the sum of all averages divided by the number of simulations
-    the Overall Average of each policy is then display with its respected policy type
-   */
-    scanSeekTimeAverage = scanSeekTimeAverage / 1000;
-    cscanSeekTimeAverage = cscanSeekTimeAverage / 1000;
-    fifoSeekTimeAverage = fifoSeekTimeAverage / 1000;
-    sstfSeekTimeAverage = sstfSeekTimeAverage / 1000;
+    
+    scanSeekTimeAverage = scanSeekTimeAverage / 10;
+    cscanSeekTimeAverage = cscanSeekTimeAverage / 10;
+    fifoSeekTimeAverage = fifoSeekTimeAverage / 10;
+    sstfSeekTimeAverage = sstfSeekTimeAverage / 10;
     cout << "Scan Overall Avg Seek Time: " << scanSeekTimeAverage << endl;
     cout << "cScan Overall Avg Seek Time: " << cscanSeekTimeAverage << endl;
     cout << "Fifo Overall Avg Seek Time: " << fifoSeekTimeAverage << endl;
@@ -89,21 +71,7 @@ int main()
 
     return 0;
 }
-/*
-int uniform(int low, int high)
 
-Author: Jorge Gonzalez
-
-Date: 11/20/2019
-
-Description: Will return a random uniform number given a range
-
-Parameters:
-
-low     I/P   int  Lower range for the random number
-
-high    I/P   int  Higher range for the random number 
- */
 int uniform(int low, int high)
 {
 top:
@@ -142,7 +110,7 @@ int scan(int requests, int requestedTracks[], int requestedSectors[], int initia
     }
     int size1 = tempTrack.size();
     int size2 = tempTrack2.size();
-    vector<int> mergedTracks(requests); /
+    vector<int> mergedTracks(requests); 
 
     sort(tempTrack.begin(), tempTrack.end());                  //sort the vector
     sort(tempTrack2.begin(), tempTrack2.end(), greater<int>()); //sort the vector in reverse order

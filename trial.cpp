@@ -112,10 +112,10 @@ int scan(int requests, int requestedTracks[], int requestedSectors[], int initia
     int size2 = tempTrack2.size();
     vector<int> mergedTracks(requests); 
 
-    sort(tempTrack.begin(), tempTrack.end());                  //sort the vector
-    sort(tempTrack2.begin(), tempTrack2.end(), greater<int>()); //sort the vector in reverse order
+    sort(tempTrack.begin(), tempTrack.end());                  
+    sort(tempTrack2.begin(), tempTrack2.end(), greater<int>()); 
 
-    for (int i = 0; i < size1; i++)                           //merge the two vectors
+    for (int i = 0; i < size1; i++)                        
   
     {
         mergedTracks[i] = tempTrack[i];
@@ -187,7 +187,7 @@ int cscan(int requests, int requestedTracks[], int requestedSectors[], int initi
     vector<int> tempTrack;
     vector<int> tempTrack2;
 
-    for (int i = 0; i < requests; i++) //separates the tracks into two arrays, greater than the initial head track and less than the head track
+    for (int i = 0; i < requests; i++) 
     {
         if (requestedTracks[i] >= initialHeadLocation)
         {
@@ -203,10 +203,10 @@ int cscan(int requests, int requestedTracks[], int requestedSectors[], int initi
     int size2 = tempTrack2.size();
     vector<int> mergedTracks(requests);
 
-    sort(tempTrack.begin(), tempTrack.end());   //sort the tracks in ascending order
-    sort(tempTrack2.begin(), tempTrack2.end()); //sort the tracks in acsending order
+    sort(tempTrack.begin(), tempTrack.end()); 
+    sort(tempTrack2.begin(), tempTrack2.end()); 
 
-    for (int i = 0; i < size1; i++) //merge the two track arrays together
+    for (int i = 0; i < size1; i++) 
     {
         mergedTracks[i] = tempTrack[i];
     }
@@ -214,7 +214,7 @@ int cscan(int requests, int requestedTracks[], int requestedSectors[], int initi
     int x = 0;
     int mergedSize = mergedTracks.size();
 
-    for (int i = size1; i < mergedSize; i++) //merge the two track arrays together
+    for (int i = size1; i < mergedSize; i++) 
     {
         mergedTracks[i] = tempTrack2[x];
         x++;

@@ -1,977 +1,525 @@
-#include<graphics.h>
-#include<iostream>
-#include<stdio.h>
-#include<conio.h>
-#define mx getmaxx()
-#define my getmaxy()
+/*
+File: main.cc
+Author: Jorge Gonzalez
+Procedures:
 
+-uniform - provides a random uniform number
+-scan - simulates the scan search policy
+-cscan - simulates the cscan search policy
+-fifo - simulates the first in first out policy
+-sstf - simulates the sstf policy
+ */
+
+//libraries required for the program
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <cstddef>
+#include <bits/stdc++.h>
+#include <vector>
 using namespace std;
 
-char str[100];
-int tw,th;
+//prototype functions 
+int uniform(int, int);
+int scan(int, int[], int[], int);
+int cscan(int, int[], int[], int);
+int fifo(int, int[], int[], int);
+int sstf(int, int[], int[], int);
 
-long absolute(long a,long b)
-{
-    long c;
-    c=a-b;
-    if(c<0)
-        return -c;
-    else
-        return c;
-}
+/*
+int main()
 
-int input(int x,int y)
-{
-    char ch;
-    int i=0;
-    str[0]='\0';
-    while(1)
-    {
-        ch=getch();
-        if(ch==13) break;
-        if(ch==8){i--; if(i<0)i=0; str[i]='\0';}
-        else if(ch>='0' && ch<='9') {str[i++]=ch; str[i]='\0';}
-        setfillstyle(1,BLACK);
-        bar(x-50,y,mx-250,y+23);
-        setcolor(BLACK);
-        setbkcolor(LIGHTCYAN);
-        outtextxy(x-50,y,str);
-    }
-    return atoi(str);
-}
+Author: Jorge Gonzalez
 
+Date: 11/20/2019
 
-void allbar(int ch)
-{
-    setbkcolor(BLACK);
-    int bh=25;
-    int tx=textwidth("1. FCFS");
-    int tx2=textwidth("2. CLOOK");
-    readimagefile("3.jpg",0,0,mx,my);
-    settextstyle(10,0,3);
-    bar(0,my/13,mx,my/8);
-    setcolor(LIGHTCYAN);
-    outtextxy(mx/2-textwidth("Please select an option to continue")/2,my/10-textheight("Please select an option to continue")/2,"Please select an option to continue");
-    settextstyle(10,0,3);
+Description: runs 1000 simulations of of the following policies; scan, cscan, fifo, sstf. Random # of requests are stored with random track and sector numbers as well. The Average of each policy is calculated and displayed
 
-
-    if(ch==0)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        bar(0,9*my/12,mx,10*my/12-bh);
-        bar(0,10*my/12,mx,11*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-    }
-
-    if(ch==1)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        bar(0,9*my/12,mx,10*my/12-bh);
-        bar(0,10*my/12,mx,11*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-    }
-
-    if(ch==2)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        bar(0,9*my/12,mx,10*my/12-bh);
-        bar(0,10*my/12,mx,11*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-    }
-
-    if(ch==3)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        bar(0,9*my/12,mx,10*my/12-bh);
-        bar(0,10*my/12,mx,11*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-    }
-
-    if(ch==4)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        bar(0,9*my/12,mx,10*my/12-bh);
-        bar(0,10*my/12,mx,11*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-    }
-
-    if(ch==5)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,9*my/12,mx,10*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        bar(0,10*my/12,mx,11*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-    }
-
-    if(ch==6)
-    {
-        setfillstyle(1,LIGHTCYAN);
-        bar(0,10*my/12,mx,11*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,5*my/12,mx,6*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,7*my/12,mx,8*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        bar(0,9*my/12,mx,10*my/12-bh);
-
-        setbkcolor(LIGHTCYAN);
-        setcolor(BLACK);
-        outtextxy(mx/2-tx/2,10*my/12,"7. EXIT");
-        setbkcolor(BLACK);
-        setcolor(LIGHTCYAN);
-        outtextxy(mx/2-tx/2,4*my/12,"1. FCFS");
-        outtextxy(mx/2-tx/2,5*my/12,"2. SSTF");
-        outtextxy(mx/2-tx/2,6*my/12,"3. SCAN");
-        outtextxy(mx/2-tx2/2,7*my/12,"4. CSCAN");
-        outtextxy(mx/2-tx/2,8*my/12,"5. LOOK");
-        outtextxy(mx/2-tx2/2,9*my/12,"6. CLOOK");
-
-    }
-}
-
-
-void mainmenu(int ch)
-{
-    int bh=25;
-    readimagefile("2.jpg",0,0,mx,my);
-    settextstyle(10,0,3);
-    bar(0,my/13,mx,my/8);
-    setcolor(LIGHTBLUE);
-    outtextxy(mx/2-textwidth("Please select an option to continue")/2,my/10-textheight("Please select an option to continue")/2,"Please select an option to continue");
-    settextstyle(10,0,3);
-
-    if(ch==0)
-    {
-        setfillstyle(1,LIGHTBLUE);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-
-        setbkcolor(LIGHTBLUE);
-        setcolor(BLUE);
-        outtextxy(mx/6,4*my/12,"1. RANDOM VALUES");
-        setbkcolor(BLACK);
-        setcolor(WHITE);
-        outtextxy(mx/6,6*my/12,"2. INPUT VALUES");
-        outtextxy(mx/6,8*my/12,"3. EXIT");
-    }
-
-    if(ch==1)
-    {
-        setfillstyle(1,LIGHTBLUE);
-        bar(0,6*my/12,mx,7*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,8*my/12,mx,9*my/12-bh);
-
-        setbkcolor(LIGHTBLUE);
-        setcolor(BLUE);
-        outtextxy(mx/6,6*my/12,"2. INPUT VALUES");
-        setbkcolor(BLACK);
-        setcolor(WHITE);
-        outtextxy(mx/6,4*my/12,"1. RANDOM VALUES");
-        outtextxy(mx/6,8*my/12,"3. EXIT");
-    }
-
-    if(ch==2)
-    {
-        setfillstyle(1,LIGHTBLUE);
-        bar(0,8*my/12,mx,9*my/12-bh);
-        setfillstyle(1,BLACK);
-        bar(0,4*my/12,mx,5*my/12-bh);
-        bar(0,6*my/12,mx,7*my/12-bh);
-
-        setbkcolor(LIGHTBLUE);
-        setcolor(BLUE);
-        outtextxy(mx/6,8*my/12,"3. EXIT");
-        setbkcolor(BLACK);
-        setcolor(WHITE);
-        outtextxy(mx/6,4*my/12,"1. RANDOM VALUES");
-        outtextxy(mx/6,6*my/12,"2. INPUT VALUES");
-
-    }
-
-
-}
-
-void start()
-{
-    readimagefile("1.jpg",0,0,mx,my);
-    setcolor(LIGHTBLUE);
-    setbkcolor(BLACK);
-    settextstyle(10, HORIZ_DIR, 3);
-    tw=textwidth("Welcome to disk scheduling analysis software");
-    th=textheight("Welcome to disk scheduling analysis software");
-    outtextxy(mx/2-tw/2,10,"Welcome to disk scheduling analysis software");
-    settextstyle(10, HORIZ_DIR, 3);
-    setbkcolor(WHITE);
-    setcolor(BLUE);
-    outtextxy(mx/2-textwidth("Created By")/2,19*my/24+40,"Created By");
-    setfillstyle(SOLID_FILL,BLACK);
-    bar(0,my-2*th,mx,my-23);
-    setbkcolor(BLACK);
-    setcolor(LIGHTBLUE);
-    outtextxy(10,my-2*th,"Shubham Dwivedi");
-    outtextxy(mx/2-textwidth("Ritik Jain")-50,my-2*th,"Ritik Jain");
-    outtextxy(mx/2+50,my-2*th,"Ishan Agarwal");
-    outtextxy(mx-textwidth("Shubham Singh")-10,my-2*th,"Shubham Singh");
-}
-struct arccoordstype a, b;
-struct arccoordstype a2, b2;
-float angle=270;
-void c1(int a1)
-{
-    setbkcolor(CYAN);
-    setcolor(CYAN);
-    arc(getmaxx()/2,getmaxy()/2,angle-a1,angle-a1,35);
-    getarccoords(&a);
-    setcolor(BLACK);
-    setfillstyle(SOLID_FILL,BLACK);
-    fillellipse(a.xstart,a.ystart,4,4);
-}
+Parameters
+n/a
+ */
 int main()
 {
-    int gd=VGA,gm=VGAHI,page=0;
-    float angle1 = 90;
-    char str[100],ch,s[100],val,mval=1;
-    long m=600,n=10,star=100,i=0;
-    int a[100]={},b[100],c[100],j,count,x,pos,mi;
+  srand(time(NULL));                                          //random number seed 
+  int initialHeadLocation = 5000/2;                           //the initial track will begin in the middle
+  int scanSeekTimeAverage = 0, cscanSeekTimeAverage = 0;
+  int fifoSeekTimeAverage = 0, sstfSeekTimeAverage = 0;
 
-    initgraph(&gd,&gm,"");
-    DWORD shr=GetSystemMetrics(SM_CYSCREEN);
-    DWORD swr=GetSystemMetrics(SM_CXSCREEN);
-    int sh=(2*shr/3);
-    int sw=(2*swr/3);
-    initwindow(sw,sh,"Disk Scheduling",-3,-3,false,true);
+  //simulations will run for 1000 times
+  for(int i = 0; i < 10; i++)
+    {
+      int requests = uniform(500, 1000);                       //each simulation will have different amount of requests
+      int requestedTracks[requests];
+      int requestedSectors[requests];
+      for(int y = 0; y < requests; y++)               //the requested tracks and sectors are randomized and stored in an array
+	{
+	  requestedTracks[y] = uniform(0, 5000);              //tracks are limited between 0 and 5000
+	  requestedSectors[y] = uniform(0, 12000);            //sectors are limited between 0 and 12,000
+	  
+	}
+      /*
+	This section will display the number of requests as well of each avg seek time of each simulation
+       */
+      cout << "Number of Requests: " << requests << endl;
+      
+      scanSeekTimeAverage +=  scan(requests, requestedTracks, requestedSectors, initialHeadLocation);
+      cout << "Scan Avg Seek " << i+1 << " :" << scan(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
+      cscanSeekTimeAverage += cscan(requests, requestedTracks, requestedSectors, initialHeadLocation);
+      cout << "cScan Avg Seek " << i+1 << " :" << cscan(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
+      fifoSeekTimeAverage += fifo(requests, requestedTracks, requestedSectors, initialHeadLocation);
+      cout << "Fifo Avg Seek " << i+1 << " :" << scan(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
+      sstfSeekTimeAverage += sstf(requests, requestedTracks, requestedSectors, initialHeadLocation);
+      cout << "SSTF Avg Seek " << i+1 << " :" << sstf(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
+      
+      cout <<"------------------------"<< endl;
+    }
+  
+  /*
+    Simulations are calculated by the sum of all averages divided by the number of simulations
+    the Overall Average of each policy is then display with its respected policy type
+   */
+    scanSeekTimeAverage = scanSeekTimeAverage/1000;
+    cscanSeekTimeAverage = cscanSeekTimeAverage/1000;
+    fifoSeekTimeAverage = fifoSeekTimeAverage/1000;
+    sstfSeekTimeAverage = sstfSeekTimeAverage/1000;
+    cout << "Scan Overall Avg Seek Time: " << scanSeekTimeAverage << endl;
+    cout << "cScan Overall Avg Seek Time: " << cscanSeekTimeAverage << endl;
+    cout << "Fifo Overall Avg Seek Time: " << fifoSeekTimeAverage << endl;
+    cout << "SSTF Overall Avg Seek Time: " << sstfSeekTimeAverage << endl;
+ 
+    return 0;
+}
+/*
+int uniform(int low, int high)
 
-   delay(800);
-   while(angle1<=450)
-   {
-      setcolor(BLACK);
-      arc(getmaxx()/2,getmaxy()/2,angle1,angle1+1,50);
-      setcolor(RED);
-      getarccoords(&a2);
-      circle(a2.xstart,a2.ystart,25);
-      setcolor(BLACK);
-      arc(getmaxx()/2,getmaxy()/2,angle1,angle1+1,100);
-      setcolor(BLUE);
-      getarccoords(&a2);
-      circle(a2.xstart,a2.ystart,25);
-      setcolor(BLACK);
-      arc(getmaxx()/2,getmaxy()/2,angle1,angle1+1,150);
-      getarccoords(&a2);
-      setcolor(CYAN);
-      circle(a2.xstart,a2.ystart,25);
-      setcolor(BLACK);
-      arc(getmaxx()/2,getmaxy()/2,angle1,angle1+1,200);
-      setcolor(LIGHTCYAN);
-      getarccoords(&a2);
-      circle(a2.xstart,a2.ystart,25);
-      setcolor(BLACK);
-      arc(getmaxx()/2,getmaxy()/2,angle1,angle1+1,250);
-      angle1 = angle1+2;
-      delay(1);
-   }
-   delay(500);
-   setcolor(LIGHTCYAN);
-   outtextxy(30,20,"Shubham Dwivedi");
-   outtextxy(30,40,"16103020");
-   delay(500);
+Author: Jorge Gonzalez
 
-   outtextxy(sw-120,20,"Ishan Agarwal");
-   outtextxy(sw-120,40,"16103242");
-   delay(500);
+Date: 11/20/2019
 
-   outtextxy(30,sh-60,"Ritik Jain");
-   outtextxy(30,sh-40,"16103240");
-   delay(500);
+Description: Will return a random uniform number given a range
 
-   outtextxy(sw-150,sh-60,"Shubham Kr Singh");
-   outtextxy(sw-150,sh-40,"16103030");
-   delay(500);
+Parameters:
 
-   settextstyle(BOLD_FONT,HORIZ_DIR,3);
-   outtextxy(181,sh/2-12,"PRESS");
-   delay(400);
-   outtextxy(sw/2-7,sh/2-12,"A");
-   delay(400);
-   outtextxy(sw-250,sh/2-12,"KEY!!");
+low     I/P   int  Lower range for the random number
 
-   delay(500);
-   getch();
+high    I/P   int  Higher range for the random number 
+ */
+int uniform(int low, int high)
+{
+ top:
+  int x;
+  int y = high - low + 1;
+  int z = rand()/y;
 
-    start();
-    getch();
+  if(z == 0)
+    {
+      goto top;
+    }
+  
+  while(y <= (x = (rand()/z)));
 
-    setbkcolor(CYAN);
-    setcolor(CYAN);
-    settextstyle(10,HORIZ_DIR,1);
-    delay(300);
+  return x + low;
+}
 
-     while(angle!=1230)
-     {
-         setactivepage(page);
-         setvisualpage(1-page);
-         cleardevice();
+/*
+int scan( int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
 
-         setcolor(BLACK);
-         outtextxy((getmaxx()/2)-45,(getmaxy()/2)+70,"Loading...");
+Author: Jorge Gonzalez
 
-         if(angle>=0 && angle<=990)
-         c1(0);
+Date: 11/21/2019
 
-         if(angle>=300 && angle<=990)
-            c1(30);
+Description will simulate the scan algorithm where wherever the disk head starts, it will continue ascending until the head then go in reverse. Return value is the 
+seek time average
 
-         if(angle>=330 && angle<=990)
-            c1(60);
+Parameters
 
-         if(angle>=360 && angle<=990)
-            c1(90);
+requests              I/P      int    amount of requests
 
-         if(angle>=390 && angle<=990)
-            c1(120);
+requestedTracks       I/P      int[]  the requested Tracks that will be sorted
+ 
+requestedSectors      I/P      int[]  the requested sectors that will be sorted
 
-         if(angle>=420 && angle<=990)
-            c1(150);
+initialHeadLocation   I/P      int    the starting point of the track head
 
-         if(angle>=450 && angle<=990)
-            c1(180);
+ */
+int scan(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+{
+  
+  vector<int> tempTrack;
+  vector<int> tempTrack2;
+ 
 
-         if(angle>=480 && angle<=990)
-            c1(210);
+  for(int i = 0; i < requests; i++)                                    //will loop through each requests, if it it bigger than the head location, move it into one array, if smaller move it into another
+    {
+      if(requestedTracks[i] >= initialHeadLocation)
+	{                                                              //same for the sectors
+	  tempTrack.push_back(requestedTracks[i]);
+	}
+      else
+	{
+	  tempTrack2.push_back(requestedTracks[i]);
+      
+	}
+    }
+  int size1 = tempTrack.size();
+  int size2 = tempTrack2.size();
+  vector<int> mergedTracks(requests);                             //new array is created with the size of both arrays tempTrack and tempTrack2
+ 
 
-        if(angle>990 && angle<=1020)
-        {
-            c1(30);
-            c1(60);
-            c1(90);
-            c1(120);
-            c1(150);
-            c1(180);
-            c1(210);
-        }
-        if(angle>1020 && angle<=1050)
-        {
-            c1(60);
-            c1(90);
-            c1(120);
-            c1(150);
-            c1(180);
-            c1(210);
-        }
-        if(angle>1050 && angle<=1080)
-        {
-            c1(90);
-            c1(120);
-            c1(150);
-            c1(180);
-            c1(210);
-        }
-        if(angle>1080 && angle<=1110)
-        {
-            c1(120);
-            c1(150);
-            c1(180);
-            c1(210);
-        }
-        if(angle>1110 && angle<=1140)
-        {
-            c1(150);
-            c1(180);
-            c1(210);
-        }
-        if(angle>1140 && angle<=1170)
-        {
-            c1(180);
-            c1(210);
-        }
-        if(angle>1170 && angle<=1200)
-        {
-            c1(210);
-        }
-        if(angle>1200)
-        {
+  sort(tempTrack.begin(), tempTrack.end());                            //the initial array that stored the tracks bigger than the head, will be assorted in ascending order
+  sort(tempTrack2.begin(), tempTrack2.end(), greater<int>());          //second array will sort the tracks in descending order.
+  
+  for(int i = 0; i < size1; i++)                                       //the arrays are merged into 1
+    {
+      mergedTracks[i] = tempTrack[i];
+   
+    }
+  int mergeSize = mergedTracks.size();
 
-        }
-         angle=angle+2;
-         delay(1);
-         page=1-page;
-     }
-     setactivepage(page);
-     cleardevice();
-     outtextxy((getmaxx()/2)-45,(getmaxy()/2)+70,"Lets Go!!");
-     getch();
-     setbkcolor(BLACK);
+  int x = 0;
+  for(int i = size1; i < mergeSize; i++)                              //sectors are merged as well
+    {
+      mergedTracks[i] = tempTrack2[x];
+  
+      x++;
+    }
+  
 
-    while(true){
+  vector<int> tracksTraversed(requests);
+  vector<int> sectorsTraversed(requests);
+  vector<int> seekTimes(requests);
+  
+  for(int i = 0; i < size1; i++)                                          //following two for loops will calculate the tracks traversed depending on ascending order
+    {                                                                     //this array is ascending so the second element (from the current) will subtract from the first making it a positive and correct number
+    
+	  if(i != size1)
+	    {
+	      tracksTraversed[i] = tempTrack[i+1] - tempTrack[i];
+	    
+	      for(int y = 0; y < requestedSectors[i]; y++)
+		{
+		  sectorsTraversed[i] = requestedSectors[i];
+		}
+	    }
+       
+    }
+  for(int i = 0; i < size2; i++)                                        //second array is in descending order so the first element will subtract from the next one and so on
+    {
+	  if(i != size2)
+	    {
+	      tracksTraversed[i+size1] = tempTrack2[i] - tempTrack2[i+1];
+	      
+	      for(int y = 0; y < requestedSectors[i+size1]; y++)
+		{
+		  sectorsTraversed[i+size1] = requestedSectors[i+size1];
+		}
+	    }
+	 
+    }	
 
-        cleardevice();
-        i=0;
-        do
-        {
-            mainmenu(i);
-            ch=getch();
-            if(ch==13) break;//ascii(13) = "enter" ,ascii(27) = "esc"
-            if(ch==27) exit(0);
-            if(ch==KEY_UP) i--;
-            if(ch==KEY_DOWN) i++;
-            if(i<0) i=0;
-            if(i>2) i=2;
-        }while(1);
+  for(int i = 0; i < requests; i++)                                    //the tracks traversed and sectors traversed are summed together to calculate the seek time of each combination
+    {
+      
+      seekTimes[i] = tracksTraversed[i] + sectorsTraversed[i];
+    }
+  //  int seekSize = seekTimes.size();
+  long seekTimeAverage = 0;
+  
+  for(int i = 0; i < requests; i++)
+    {
+      seekTimeAverage += seekTimes[i];                                  // each seek time is then summed up
+    }
 
-        switch(i)
-        {
-            case 0:   //RANDOM VALUES
-                m=600;
-                n=10;
-                star=100;
-                for(i=0;i<10;i++)
-                {
-                    a[i]=rand()%600;
-                }
-            break;
-            case 1:    //INPUT VALUE
-                cleardevice();
-                readimagefile("5.jpg",0,0,mx,my);
-                setcolor(LIGHTCYAN);
-                line(0,120,mx,120);
-                setcolor(BLACK);
-                setbkcolor(LIGHTCYAN);
-                settextstyle(10,0,3);
-                outtextxy(mx/2-textwidth("HARD DISK INFORMATION")/2,100,"HARD DISK INFORMATION");
-
-                settextstyle(10,0,3);
-
-                outtextxy(mx/8-28,200,"Enter the number of cylinders : ");
-                m=input(3*mx/4,200);
-
-                outtextxy(mx/8-28,300,"Enter the number of requests :");
-                n=input(3*mx/4,300);
-
-                outtextxy(mx/8-28,400,"Enter current position :");
-                star=input(3*mx/4,400);
-
-                cleardevice();
-                setcolor(LIGHTCYAN);
-                line(0,120,mx,120);
-                readimagefile("5.jpg",0,0,mx,my);
-                setcolor(BLACK);
-                settextstyle(10,0,3);
-                outtextxy(mx/2-textwidth("POSITION INFORMATION")/2,100,"POSITION INFORMATION");
-
-                settextstyle(10,0,3);
-                for(j=0;j<n;j++)
-                {
-                    sprintf(str,"Enter Position %ld : ",j+1);
-                    outtextxy(mx/3-60,250,str);
-                    a[j]=input(3*mx/4,250);
-                }
-            break;
-            case 2:
-                exit(0);
-            break;
-        }
-
-        do{
-            cleardevice();
-            i=0;
-            do
-            {
-                allbar(i);
-                ch=getch();
-                if(ch==13) break;
-                if(ch==27) break;
-                if(ch==KEY_UP) i--;
-                if(ch==KEY_DOWN) i++;
-                if(i<0) i=0;
-                if(i>6) i=6;
-            }while(1);
-            val=1;
-            count=0;
-            x=star;
-            int d=0;
-            switch(i){
-                case 0://FCFS
-                    cleardevice();
-                    readimagefile("4.jpg",0,0,mx,my);
-                    settextstyle(10,HORIZ_DIR,3);
-                    outtextxy(mx/2-textwidth("FCFS"),my/48,"FCFS");
-
-                    settextstyle(10,0,1);
-                    for(i=0;i<n;i++)
-                    {
-                        x-=a[i];
-                        if(x<0)
-                        x=-x;
-                        count+=x;
-                        x=a[i];
-                        setlinestyle(3,0,1);
-                        line(40+a[i],100,40+a[i],450);
-                        setlinestyle(0,0,1);
-                        setcolor(YELLOW);
-                        if(i==0){ line(40+star,i*20+100,40+a[i],i*20+120); sprintf(str,"%ld",a[0]); outtextxy(0,120,str); }
-                        else{ line(40+a[i-1],i*20+100,40+a[i],i*20+120); sprintf(str,"%ld",a[i]); outtextxy(0,i*20+120,str); }
-                        setcolor(LIGHTCYAN);
-                        getch();
-                    }
-                    settextstyle(10,0,3);
-                    sprintf(str,"Total Head Movement :%ld Cylinders",count);
-                    outtextxy(mx/2-textwidth("Total Head Movement :%ld Cylinders")/2,9*my/10,str);
-                    getch();
-                break;
-
-                case 1: //SSTF
-                    cleardevice();
-                    readimagefile("4.jpg",0,0,mx,my);
-                    settextstyle(10,HORIZ_DIR,3);
-                    outtextxy(mx/2-textwidth("SSTF"),10,"SSTF");
-                    settextstyle(10,0,1);
-                    for(i=0;i<n;i++) b[i]=a[i];
-
-                    for(i=0;i<n;i++)
-                    {
-                        mi=absolute(b[i],x);
-                        pos=i;
-                        for(j=i;j<n;j++)
-                            if(mi>absolute(x,b[j]))
-                            {
-                                pos=j;
-                                mi=absolute(x,b[j]);
-                            }
-                        count+=absolute(x,b[pos]);
-                        x=b[pos];
-                        b[pos]=b[i];
-                        b[i]=x;
-                    }
-
-                    settextstyle(10,0,1);
-                    setlinestyle(3,0,1);
-                    line(40+b[0],100,40+b[0],450);
-                    setlinestyle(1,0,1);
-                    setcolor(YELLOW);
-                    line(40+star,100,40+b[0],120);
-                    sprintf(str,"%ld",b[0]);
-                    outtextxy(0,120,str);
-                    getch();
-                    for(i=1;i<n;i++)
-                    {
-                        setlinestyle(3,0,1);
-                        setcolor(LIGHTCYAN);
-                        line(40+b[i],100,40+b[i],450);
-                        setlinestyle(1,0,1);
-                        setcolor(YELLOW);
-                        line(40+b[i-1],i*20+100,40+b[i],i*20+120);
-                        sprintf(str,"%ld",b[i]);
-                        outtextxy(0,i*20+120,str);
-                        getch();
-                    }
-
-                    settextstyle(10,0,3);
-                    setcolor(LIGHTCYAN);
-                    sprintf(str,"Total Head Movement :%ld Cylinders",count);
-                    outtextxy(mx/2-textwidth("Total Head Movement :%ld Cylinders")/2,9*my/10,str);
-                    getch();
-                break;
-
-                case 2: //SCAN
-                    cleardevice();
-                    readimagefile("4.jpg",0,0,mx,my);
-                    settextstyle(10,HORIZ_DIR,3);
-                    outtextxy(mx/2-textwidth("SCAN"),10,"SCAN");
-                    settextstyle(10,0,1);
-                    for(i=0;i<n;i++) b[i]=a[i];
-                    count=0;
-                    pos=0;
-                    d=0;
-                    for(i=0;i<n;i++)
-                        for(j=0;j<n-i-1;j++)
-                            if(b[j]>b[j+1])
-                            {
-                                x=b[j];
-                                b[j]=b[j+1];
-                                b[j+1]=x;
-                            }
-                    for(i=0;i<n;i++)
-                        if(b[i]<star)
-                            pos++;
-                    for(i=0;i<pos;i++)
-                        for(j=0;j<pos-i-1;j++)
-                            if(b[j]<b[j+1])
-                            {
-                                x=b[j];
-                                b[j]=b[j+1];
-                                b[j+1]=x;
-                            }
-                    x=star;
-                    c[d++]=x;
-                    for(i=0;i<pos;i++)
-                    {
-                        count+=absolute(b[i],x);
-                        x=b[i];
-                        c[d++]=x;
-                    }
-                    count+=absolute(x,0);
-                    x=0;
-                    c[d++]=x;
-                    for(i=pos;i<n;i++)
-                    {
-                        count+=absolute(b[i],x);
-                        x=b[i];
-                        c[d++]=x;
-                    }
-
-                    settextstyle(10,0,1);
-                    setlinestyle(3,0,1);
-                    setcolor(LIGHTCYAN);
-                    line(40+c[0],100,40+c[0],450);
-                    setlinestyle(1,0,1);
-                    setcolor(YELLOW);
-                    line(40+star,100,40+c[0],120);
-                    sprintf(str,"%ld",c[0]);
-                    outtextxy(0,120,str);
-                    getch();
-                    for(i=1;i<d;i++)
-                    {
-                        setlinestyle(3,0,1);
-                        setcolor(LIGHTCYAN);
-                        line(40+c[i],100,40+c[i],450);
-                        setlinestyle(0,0,1);
-                        setcolor(YELLOW);
-                        line(40+c[i-1],i*20+100,40+c[i],i*20+120);
-                        sprintf(str,"%ld",c[i]);
-                        outtextxy(0,i*20+120,str);
-                        getch();
-                    }
-
-                    settextstyle(10,0,3);
-                    setcolor(LIGHTCYAN);
-                    sprintf(str,"Total Head Movement :%ld Cylinders",count);
-                    outtextxy(mx/2-textwidth("Total Head Movement :%ld Cylinders")/2,9*my/10,str);
-                    getch();
-                break;
-
-                case 3: //CSCAN
-                    cleardevice();
-                    readimagefile("4.jpg",0,0,mx,my);
-                    settextstyle(10,HORIZ_DIR,3);
-                    outtextxy(mx/2-textwidth("CSCAN"),10,"CSCAN");
-                    settextstyle(10,0,1);
-                    for(i=0;i<n;i++) b[i]=a[i];
-                    count=0;
-                    pos=0;
-                    d=0;
-                    for(i=0;i<n;i++)
-                        for(j=0;j<n-i-1;j++)
-                            if(b[j]>b[j+1])
-                            {
-                                x=b[j];
-                                b[j]=b[j+1];
-                                b[j+1]=x;
-                            }
-                    for(i=0;i<n;i++)
-                        if(b[i]<star)
-                            pos++;
-                    x=star;
-                    c[d++]=x;
-                    for(i=pos;i<n;i++)
-                    {
-                        count+=absolute(x,b[i]);
-                        x=b[i];
-                        c[d++]=x;
-                    }
-                    count+=absolute(m-1,x);
-                    x=0;
-                    if(pos>0)
-                    {
-                        if(c[d-1]<=c[d-2]){
-                        c[d++]=x;
-                        c[d++]=m;}
-                        else{
-                        c[d++]=m;
-                        c[d++]=x;
-                        }
-                    }
-                    for(i=0;i<pos;i++)
-                    {
-                        count+=absolute(x,b[i]);
-                        x=b[i];
-                        c[d++]=x;
-                    }
-
-                    settextstyle(10,0,1);
-                    setlinestyle(3,0,1);
-                    setcolor(LIGHTCYAN);
-                    line(40+c[0],100,40+c[0],450);
-                    setlinestyle(0,0,1);
-                    setcolor(YELLOW);
-                    line(40+star,100,40+c[0],120);
-                    sprintf(str,"%ld",c[0]);
-                    outtextxy(0,120,str);
-                    getch();
-                    for(i=1;i<d;i++)
-                    {
-                        setlinestyle(3,0,1);
-                        setcolor(LIGHTCYAN);
-                        line(40+c[i],100,40+c[i],450);
-                        setlinestyle(0,0,1);
-                        setcolor(YELLOW);
-                        line(40+c[i-1],i*20+100,40+c[i],i*20+120);
-                        sprintf(str,"%ld",c[i]);
-                        outtextxy(0,i*20+120,str);
-                        getch();
-                    }
-
-                    settextstyle(10,0,3);
-                    setcolor(LIGHTCYAN);
-                    sprintf(str,"Total Head Movement :%ld Cylinders",count);
-                    outtextxy(mx/2-textwidth("Total Head Movement :%ld Cylinders")/2,9*my/10,str);
-                    delay(3000);
-                    getch();
-                    getch();
-                break;
-
-                case 4: //LOOK
-                    cleardevice();
-                    readimagefile("4.jpg",0,0,mx,my);
-                    settextstyle(10,HORIZ_DIR,3);
-                    outtextxy(mx/2-textwidth("LOOK"),10,"LOOK");
-                    settextstyle(10,0,1);
-                    for(i=0;i<n;i++) b[i]=a[i];
-                    count=0;
-                    pos=0;
-                    for(i=0;i<n;i++)
-                        for(j=0;j<n-i-1;j++)
-                            if(b[j]>b[j+1])
-                            {
-                                x=b[j];
-                                b[j]=b[j+1];
-                                b[j+1]=x;
-                            }
-                    for(i=0;i<n;i++)
-                        if(b[i]<star)
-                            pos++;
-                    for(i=0;i<pos;i++)
-                        for(j=0;j<pos-i-1;j++)
-                            if(b[j]<b[j+1])
-                            {
-                                x=b[j];
-                                b[j]=b[j+1];
-                                b[j+1]=x;
-                            }
-                    x=star;
-                    for(i=0;i<pos;i++)
-                    {
-                        count+=absolute(b[i],x);
-                        x=b[i];
-                    }
-                    for(i=pos;i<n;i++)
-                    {
-                        count+=absolute(b[i],x);
-                        x=b[i];
-                    }
-
-                    settextstyle(10,0,1);
-                    setlinestyle(3,0,1);
-                    setcolor(LIGHTCYAN);
-                    line(40+b[0],100,40+b[0],450);
-                    setlinestyle(0,0,1);
-                    setcolor(YELLOW);
-                    line(40+star,100,40+b[0],120);
-                    sprintf(str,"%ld",b[0]);
-                    outtextxy(0,120,str);
-                    getch();
-                    for(i=1;i<n;i++)
-                    {
-                        setlinestyle(3,0,1);
-                        setcolor(LIGHTCYAN);
-                        line(40+b[i],100,40+b[i],450);
-                        setlinestyle(0,0,1);
-                        setcolor(YELLOW);
-                        line(40+b[i-1],i*20+100,40+b[i],i*20+120);
-                        sprintf(str,"%ld",b[i]);
-                        outtextxy(0,i*20+120,str);
-                        getch();
-                    }
-
-                    settextstyle(10,0,3);
-                    setcolor(LIGHTCYAN);
-                    sprintf(str,"Total Head Movement :%ld Cylinders",count);
-                    outtextxy(mx/2-textwidth("Total Head Movement :%ld Cylinders")/2,9*my/10,str);
-                    getch();
-                break;
-
-                case 5: //CLOOK
-                    cleardevice();
-                    readimagefile("4.jpg",0,0,mx,my);
-                    settextstyle(10,HORIZ_DIR,3);
-                    outtextxy(mx/2-textwidth("CLOOK"),10,"CLOOK");
-                    settextstyle(10,0,1);
-                    for(i=0;i<n;i++) b[i]=a[i];
-                    count=0;
-                    pos=0;
-                    for(i=0;i<n;i++)
-                        for(j=0;j<n-i-1;j++)
-                            if(b[j]>b[j+1])
-                            {
-                                x=b[j];
-                                b[j]=b[j+1];
-                                b[j+1]=x;
-                            }
-                    for(i=0;i<n;i++)
-                        if(b[i]<star)
-                            pos++;
-                    x=star;
-                    for(i=pos;i<n;i++)
-                    {
-                        count+=absolute(x,b[i]);
-                        x=b[i];
-                    }
-                    for(i=0;i<pos;i++)
-                    {
-                        count+=absolute(x,b[i]);
-                        x=b[i];
-                    }
+  if(requests != 0)
+    {
+      seekTimeAverage = seekTimeAverage/requests;                          // the summed up seek time is then divided by the number of requests to calculate the average
+    }
+  else
+    {
+      cout << "hello" << endl;
+    }
+  return seekTimeAverage;
 
 
-                    settextstyle(10,0,1);
-                    setlinestyle(3,0,1);
-                    setcolor(LIGHTCYAN);
-                    line(40+b[0],100,40+b[0],450);
-                    setlinestyle(0,0,1);
-                    setcolor(YELLOW);
-                    line(40+star,100,40+b[0],120);
-                    sprintf(str,"%ld",b[0]);
-                    outtextxy(0,120,str);
-                    getch();
-                    for(i=1;i<n;i++)
-                    {
-                        setlinestyle(3,0,1);
-                        setcolor(LIGHTCYAN);
-                        line(40+b[i],100,40+b[i],450);
-                        setlinestyle(0,0,1);
-                        setcolor(YELLOW);
-                        line(40+b[i-1],i*20+100,40+b[i],i*20+120);
-                        sprintf(str,"%ld",b[i]);
-                        outtextxy(0,i*20+120,str);
-                        getch();
-                    }
 
-                    settextstyle(10,0,3);
-                    setcolor(LIGHTCYAN);
-                    sprintf(str,"Total Head Movement :%ld Cylinders",count);
-                    outtextxy(mx/2-textwidth("Total Head Movement :%ld Cylinders")/2,9*my/10,str);
-                    getch();
-                break;
+}
 
-                case 6:
-                    val=0;
-                break;
-            }//end of switch
-        }while(val==1);
-    }//while(mval==1);
-} //END OF MAIN
+/*
+int cscan(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+
+Author: Jorge Gonzalez
+
+Date: 11/21/2019
+
+Description: will simulate the cscan algorithm and sort in increasing numbers starting from the head track
+
+Parameters:
+
+requests               I/P      int     the number of requests
+
+requestedTracks        I/P      int[]   the requested tracks
+
+requestedSectors       I/P      int[]   the requested sectors
+
+initialHeadLocation    I/P      int[]    the initial starting point
+ */
+int cscan(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+{
+  vector<int> tempTrack;
+  vector<int> tempTrack2;
+
+  for(int i = 0; i < requests; i++)                          //separates the tracks into two arrays, greater than the initial head track and less than the head track
+    {
+      if(requestedTracks[i] >= initialHeadLocation)
+	{
+	  tempTrack.push_back(requestedTracks[i]);
+	}
+      else
+	{
+	  tempTrack2.push_back(requestedTracks[i]);
+	}
+    }
+
+  int size1 = tempTrack.size();
+  int size2 = tempTrack2.size();
+  vector<int> mergedTracks (requests);
+
+  sort(tempTrack.begin(), tempTrack.end());                 //sort the tracks in ascending order
+  sort(tempTrack2.begin(), tempTrack2.end());               //sort the tracks in acsending order
+
+  for(int i = 0; i < size1; i++)                            //merge the two track arrays together
+    {
+      mergedTracks[i] = tempTrack[i];
+    }
+
+  int x = 0;
+  int mergedSize = mergedTracks.size();
+
+  for(int i = size1; i < mergedSize; i++)                  //merge the two track arrays together
+    {
+      mergedTracks[i] = tempTrack2[x];
+      x++;
+    }
+
+  vector<int> tracksTraversed(requests);
+  vector<int> sectorsTraversed(requests);
+  vector<int> seekTimes(requests);
+
+  for(int i = 0; i < size1; i++)                          //loop through the first tempTrack
+    {
+      if( i != size1) 
+	{
+	  tracksTraversed[i] = tempTrack[i+1] - tempTrack[i];          //will capture the tracks traversed by subtracting the n+1 element by the n element
+
+	  for(int y = 0; y < requestedSectors[i]; y++)                 //sectors are captured as well
+	    {
+	      sectorsTraversed[i] = requestedSectors[i];
+	    }
+	}
+
+    }
+
+  for(int i = 0; i < size2; i++)                         // loop through the second temp track
+    {
+      if(i != size2)
+	{
+	  tracksTraversed[i+size1] = tempTrack2[i+1] - tempTrack2[i];       //will capture the tracks traversed by subtracting the n+1 element by the n element
+
+	  for(int y = 0; y < requestedSectors[i+size1]; y++)                 // the sectors are captured as well
+	    {
+	      sectorsTraversed[i+size1] = requestedSectors[i]+size1;
+	    }
+	}
+      
+    }
+
+  for(int i = 0; i < requests; i++)                                          //each seek time is calculated by track traversed + the sectors traversed
+    {
+      seekTimes[i] = tracksTraversed[i] + sectorsTraversed[i];
+    }
+
+  //  int seekSize = seekTimes.size();
+
+  long seekTimeAverage = 0;
+
+
+  for(int i = 0; i < requests; i++)                                          //each seek time is summed up
+    {
+      seekTimeAverage += seekTimes[i];
+    }
+  
+  if(requests !=0)
+    {
+      seekTimeAverage = seekTimeAverage/requests;                                //summed seek time is divided by the number of requests to find the average seek time
+    }
+  else{
+    cout << "hello" << endl;
+  }
+  return seekTimeAverage;
+
+
+}
+
+/*
+int fifo(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+
+Author: Jorge Gonzalez
+
+Date: 11/21/2019
+
+Description: simulates the fifo disk algorithm for first in first out, summmed seek time is averaged and returned
+
+Parameters:
+
+requests              I/P   int     number of requests
+
+requestedTracks       I/P   int[]   the requested tracks
+
+requestedSectors      I/P   int[]   the requested sectors
+
+initialHeadLocation   I/P   int     the initial starting point
+ */
+int fifo(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+{
+  vector<int> tempTrack(requests);
+  vector<int> tracksTraversed(requests);
+  vector<int> sectorsTraversed(requests);
+  vector<int> seekTime(requests);
+  for(int i = 0; i < requests; i++)           //the requested tracks and sectors are stored in temp arrays
+    {
+      tempTrack[i] = requestedTracks[i];
+      sectorsTraversed[i] = requestedSectors[i];
+    }
+
+  for(int i = 0; i < requests; i++)                                   //number of tracks traversed is calculated by if n+1 - n element is a positive number, store than number, if not then n - (n+1) is stored
+    {
+      if(i != requests)
+	{
+	  if(tempTrack[i]-(tempTrack[i+1]) >= 0)                      //checks to see if the difference is positive
+	    {
+	      tracksTraversed[i] = tempTrack[i] - tempTrack[i+1];     //if it is then store the tracks traversed
+	      
+	    }
+	  else if(tempTrack[i+1] - (tempTrack[i]) >= 0)               //checks to see if the difference is positive
+	    {
+	      tracksTraversed[i] = tempTrack[i+1] - tempTrack[i];    // if it is then store the tracks traversed
+	      
+	    }
+	}
+    }
+
+  for(int i = 0; i < requests; i++)                                    //seek time is calculated by tracks traversed + sectors traversed
+    {
+      seekTime[i] = tracksTraversed[i] + sectorsTraversed[i];
+    }
+
+  //  int seekSize = seekTime.size();
+
+  long seekTimeAverage = 0;
+
+  for(int i = 0; i < requests; i++)                                   //each seek time is summed up
+    {
+      seekTimeAverage += seekTime[i];
+    }
+
+  if(requests != 0)
+    {
+      seekTimeAverage = seekTimeAverage/requests;                         //average is calculated by the summed seek time / number of requests
+    }
+  else
+    {
+      cout << "hello" << endl;
+    }
+  return seekTimeAverage;
+
+  
+}
+
+/*
+int sstf(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+
+Author: Jorge Gonzalez
+
+Date: 11/21/2019
+
+Description: simulates the sstf disk algorithm and returns the seek time average
+
+Parameters
+
+requests               I/P   int   number of requests
+
+requestedTracks        I/P   int[] the requested tracks
+
+requestedSectors       I/P   int[] the requested sectors
+
+initialHeadLocation    I/P   int   initial starting point
+ */
+int sstf(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+{
+  vector<int> tempTrack(requests);
+  vector<int> tempSector(requests);
+  int currentDifference = 2500;
+  vector<int> tracksTraversed(requests);
+  for(int i = 0; i < requests; i++)             //requested sectors and tracks are stored in a temp array
+    {
+      tempTrack[i] = requestedTracks[i];
+      tempSector[i] = requestedSectors[i];
+    }
+
+
+  
+  for(int i = 0; i < requests; i++)           //loop through the number of requests, sorting by shortest number of tracks traversed
+    {
+     
+      currentDifference = 2500;              //this will be the initial difference at the start of every loop
+      for(int y = i+1; y < requests; y++)   //compare each element with every other element in the array
+	{
+	  if(y != requests)                 //checks to see if it reached the end
+	    {
+	      if((tempTrack[i] - tempTrack[y]) >= 0)  //checks to see if the difference between elements is positive
+	    {
+	      if((tempTrack[i] - tempTrack[y]) < currentDifference)         //checks to see if the current difference is smaller than the stored difference
+		{
+		  currentDifference = tempTrack[i] - tempTrack[y];          //if it is then store it as the new difference
+		}
+	    }
+	      else if((tempTrack[y] - tempTrack[i]) >= 0)                      //checks to see if the difference between elements is positive
+	      {
+		if((tempTrack[y] - tempTrack[i]) < currentDifference )         //checks to see if the current difference is smaller than the stored one
+		  { 
+		    currentDifference = tempTrack[y] - tempTrack[i];           //if it is, then it is the new stored difference
+		  }
+	      }
+	    }
+	  
+	}
+      tracksTraversed[i] = currentDifference;                               //once each element has been checked, the current difference is stored into the array and restart the process
+       
+    }
+      
+  vector<int> seekTime(requests);
+
+  for(int i = 0; i < requests; i++)
+    {
+      seekTime[i] = tracksTraversed[i] + tempSector[i];                        //calculate the average seek time by adding track traverse + temp sector
+    }
+
+  long seekTimeAverage = 0;
+
+  for(int i = 0; i < requests; i++)
+    {
+      seekTimeAverage += seekTime[i];                                          //sum each seek time
+    }
+
+  if(requests != 0)
+    {
+  seekTimeAverage = seekTimeAverage/requests;                                    //calculate the avg by dividing the sum by the number of requests
+    }
+  else{
+    cout << "hello" << endl;
+  }
+  return seekTimeAverage;
+
+    
+}

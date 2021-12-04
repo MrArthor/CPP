@@ -1,6 +1,6 @@
 /*
-File: main.cc
-Author: Jorge Gonzalez
+File: Implementation.cpp
+Author: Mr Arthor
 Procedures:
 
 -uniform - provides a random uniform number
@@ -10,69 +10,67 @@ Procedures:
 -sstf - simulates the sstf policy
  */
 
-//libraries required for the program
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <cstddef>
-#include <bits/stdc++.h>
-#include <vector>
+#include <iostream>      //cin, cout
+#include <stdio.h>       //printf
+#include <stdlib.h>      //srand, rand
+#include <time.h>        //time
+#include <cstddef>       //size_t
+#include <bits/stdc++.h> //
+#include <vector>        //vector
+#include <fstream>       //ifstream
 using namespace std;
 
-//prototype functions
-int uniform(int, int);
-int scan(int, int[], int[], int);
-int cscan(int, int[], int[], int);
-int fifo(int, int[], int[], int);
-int sstf(int, int[], int[], int);
+int uniform(int, int);             //provides a random uniform number
+int scan(int, int[], int[], int);  //simulates the scan scheduling policy
+int cscan(int, int[], int[], int); //simulates the cscan scheduling policy
+int fifo(int, int[], int[], int);  //simulates the first in first out policy
+int sstf(int, int[], int[], int);  //simulates the sstf policy
 
-int main()
+int main() //
 {
-    srand(time(NULL));       
-    int initialHeadLocation = 5000 / 2; 
-    int scanSeekTimeAverage = 0, cscanSeekTimeAverage = 0;
-    int fifoSeekTimeAverage = 0, sstfSeekTimeAverage = 0;
+    srand(time(NULL));                                     //seed the random number generator
+    int InitialHeadLocation = 5000 / 2;                    //initial head location
+    int scanSeekTimeAverage = 0, cscanSeekTimeAverage = 0; //average seek time for scan policy
+    int fifoSeekTimeAverage = 0, sstfSeekTimeAverage = 0;  //average seek time for fifo policy
 
     for (int i = 0; i < 10; i++)
     {
-        int requests = uniform(500, 1000); 
-        int requestedTracks[requests];
-        int requestedSectors[requests];
-        for (int y = 0; y < requests; y++)
+        int Requests = uniform(500, 1000); //number of Requests
+        int TracksRequested[Requests];     //array of requested tracks
+        int SectorsRequested[Requests];    //array of requested sectors
+        for (int y = 0; y < Requests; y++) //populate the arrays
         {
-            requestedTracks[y] = uniform(0, 5000);   
-            requestedSectors[y] = uniform(0, 12000); 
+            TracksRequested[y] = uniform(0, 5000);   //populate the track array
+            SectorsRequested[y] = uniform(0, 12000); //populate the sector array
         }
-        
-        cout << "Number of Requests: " << requests << endl;
 
-        scanSeekTimeAverage += scan(requests, requestedTracks, requestedSectors, initialHeadLocation);
-        cout << "Scan Avg Seek " << i + 1 << " :" << scan(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
-        cscanSeekTimeAverage += cscan(requests, requestedTracks, requestedSectors, initialHeadLocation);
-        cout << "cScan Avg Seek " << i + 1 << " :" << cscan(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
-        fifoSeekTimeAverage += fifo(requests, requestedTracks, requestedSectors, initialHeadLocation);
-        cout << "Fifo Avg Seek " << i + 1 << " :" << scan(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
-        sstfSeekTimeAverage += sstf(requests, requestedTracks, requestedSectors, initialHeadLocation);
-        cout << "SSTF Avg Seek " << i + 1 << " :" << sstf(requests, requestedTracks, requestedSectors, initialHeadLocation) << endl;
+        cout << "Number of Requests: " << Requests << endl; //print the number of Requests
 
-        cout << "------------------------" << endl;
+        scanSeekTimeAverage += scan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                                 //calculate the average seek time for scan policy
+        cout << "Scan Avg Seek " << i + 1 << " :" << scan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl;   //print the average seek time for scan policy
+        cscanSeekTimeAverage += cscan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                               //calculate the average seek time for cscan policy
+        cout << "cScan Avg Seek " << i + 1 << " :" << cscan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl; //print the average seek time for cscan policy
+        fifoSeekTimeAverage += fifo(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                                 //calculate the average seek time for fifo policy
+        cout << "Fifo Avg Seek " << i + 1 << " :" << scan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl;   //print the average seek time for fifo policy
+        sstfSeekTimeAverage += sstf(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                                 //calculate the average seek time for sstf policy
+        cout << "SSTF Avg Seek " << i + 1 << " :" << sstf(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl;   //print the average seek time for sstf policy
+
+        cout << "------------------------" << endl; //print a line
     }
 
-    
-    scanSeekTimeAverage = scanSeekTimeAverage / 10;
-    cscanSeekTimeAverage = cscanSeekTimeAverage / 10;
-    fifoSeekTimeAverage = fifoSeekTimeAverage / 10;
-    sstfSeekTimeAverage = sstfSeekTimeAverage / 10;
-    cout << "Scan Overall Avg Seek Time: " << scanSeekTimeAverage << endl;
-    cout << "cScan Overall Avg Seek Time: " << cscanSeekTimeAverage << endl;
-    cout << "Fifo Overall Avg Seek Time: " << fifoSeekTimeAverage << endl;
-    cout << "SSTF Overall Avg Seek Time: " << sstfSeekTimeAverage << endl;
+    scanSeekTimeAverage = scanSeekTimeAverage / 10;                          //calculate the average seek time for scan policy
+    cscanSeekTimeAverage = cscanSeekTimeAverage / 10;                        //calculate the average seek time for cscan policy
+    fifoSeekTimeAverage = fifoSeekTimeAverage / 10;                          //calculate the average seek time for fifo policy
+    sstfSeekTimeAverage = sstfSeekTimeAverage / 10;                          //calculate the average seek time for sstf policy
+    cout << "Scan Overall Avg Seek Time: " << scanSeekTimeAverage << endl;   //print the average seek time for scan policy
+    cout << "cScan Overall Avg Seek Time: " << cscanSeekTimeAverage << endl; //print the average seek time for cscan policy
+    cout << "Fifo Overall Avg Seek Time: " << fifoSeekTimeAverage << endl;   //print the average seek time for fifo policy
+    cout << "SSTF Overall Avg Seek Time: " << sstfSeekTimeAverage << endl;   //print the average seek time for sstf policy
 
-    return 0;
+    return 0; //end program
 }
 
-int uniform(int low, int high)
+int uniform(int low, int high) //provides a random uniform number
 {
 top:
     int x;
@@ -90,341 +88,299 @@ top:
     return x + low;
 }
 
-
-int scan(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+int scan(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation) //simulates the scan scheduling policy
 {
 
-    vector<int> tempTrack;
-    vector<int> tempTrack2;
+    vector<int> TrackTemp;
+    vector<int> TrackTemp2;
 
-    for (int i = 0; i < requests; i++) 
+    for (int i = 0; i < Requests; i++)
     {
-        if (requestedTracks[i] >= initialHeadLocation)
-        { 
-            tempTrack.push_back(requestedTracks[i]);
+        if (TracksRequested[i] >= InitialHeadLocation)
+        {
+            TrackTemp.push_back(TracksRequested[i]);
         }
         else
         {
-            tempTrack2.push_back(requestedTracks[i]);
+            TrackTemp2.push_back(TracksRequested[i]);
         }
     }
-    int size1 = tempTrack.size();
-    int size2 = tempTrack2.size();
-    vector<int> mergedTracks(requests); 
+    int Size1 = TrackTemp.size();
+    int Size2 = TrackTemp2.size();
+    vector<int> mergedTracks(Requests);
 
-    sort(tempTrack.begin(), tempTrack.end());                  
-    sort(tempTrack2.begin(), tempTrack2.end(), greater<int>()); 
+    sort(TrackTemp.begin(), TrackTemp.end());//sort the vector
+    sort(TrackTemp2.begin(), TrackTemp2.end(), greater<int>());//sort the vector
 
-    for (int i = 0; i < size1; i++)                        
-  
+    for (int i = 0; i < Size1; i++)
+
     {
-        mergedTracks[i] = tempTrack[i];
+        mergedTracks[i] = TrackTemp[i];
     }
     int mergeSize = mergedTracks.size();
 
     int x = 0;
-    for (int i = size1; i < mergeSize; i++) 
+    for (int i = Size1; i < mergeSize; i++)
     {
-        mergedTracks[i] = tempTrack2[x];
+        mergedTracks[i] = TrackTemp2[x];
         x++;
     }
-    
 
-    vector<int> tracksTraversed(requests);
-    vector<int> sectorsTraversed(requests);
-    vector<int> seekTimes(requests);
+    vector<int> TraversedTracks(Requests);
+    vector<int> TraversedSectors(Requests);
+    vector<int> STimes(Requests);
 
-    for (int i = 0; i < size1; i++) {
+    for (int i = 0; i < Size1; i++)
+    {
 
-        if (i != size1)
+        if (i != Size1)
         {
-            tracksTraversed[i] = tempTrack[i + 1] - tempTrack[i];
+            TraversedTracks[i] = TrackTemp[i + 1] - TrackTemp[i];
 
-            for (int y = 0; y < requestedSectors[i]; y++)
+            for (int y = 0; y < SectorsRequested[i]; y++)
             {
-                sectorsTraversed[i] = requestedSectors[i];
+                TraversedSectors[i] = SectorsRequested[i];
             }
         }
     }
-    for (int i = 0; i < size2; i++) 
+    for (int i = 0; i < Size2; i++)
     {
-        if (i != size2)
+        if (i != Size2)
         {
-            tracksTraversed[i + size1] = tempTrack2[i] - tempTrack2[i + 1];
+            TraversedTracks[i + Size1] = TrackTemp2[i] - TrackTemp2[i + 1];
 
-            for (int y = 0; y < requestedSectors[i + size1]; y++)
+            for (int y = 0; y < SectorsRequested[i + Size1]; y++)
             {
-                sectorsTraversed[i + size1] = requestedSectors[i + size1];
+                TraversedSectors[i + Size1] = SectorsRequested[i + Size1];
             }
         }
     }
 
-    for (int i = 0; i < requests; i++) //
+    for (int i = 0; i < Requests; i++)
     {
 
-        seekTimes[i] = tracksTraversed[i] + sectorsTraversed[i];
+        STimes[i] = TraversedTracks[i] + TraversedSectors[i];
     }
-    long seekTimeAverage = 0;
+    long SeekTimeAverage = 0;
 
-    for (int i = 0; i < requests; i++)
+    for (int i = 0; i < Requests; i++)
     {
-        seekTimeAverage += seekTimes[i];
+        SeekTimeAverage += STimes[i];
     }
 
-    if (requests != 0)
+    if (Requests != 0)
     {
-        seekTimeAverage = seekTimeAverage / requests;
+        SeekTimeAverage = SeekTimeAverage / Requests;
     }
     else
     {
-        cout << "hello" << endl;
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
     }
-    return seekTimeAverage;
+    return SeekTimeAverage;
 }
 
-int cscan(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+int cscan(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation)//simulates the cscan
 {
-    vector<int> tempTrack;
-    vector<int> tempTrack2;
+    vector<int> TrackTemp;
+    vector<int> TrackTemp2;
 
-    for (int i = 0; i < requests; i++) 
+    for (int i = 0; i < Requests; i++)
     {
-        if (requestedTracks[i] >= initialHeadLocation)
+        if (TracksRequested[i] >= InitialHeadLocation)//if the track is greater than the initial head location
         {
-            tempTrack.push_back(requestedTracks[i]);
+            TrackTemp.push_back(TracksRequested[i]);//push the track to the vector
         }
         else
         {
-            tempTrack2.push_back(requestedTracks[i]);
+            TrackTemp2.push_back(TracksRequested[i]);//push the track to the vector
         }
+       
     }
 
-    int size1 = tempTrack.size();
-    int size2 = tempTrack2.size();
-    vector<int> mergedTracks(requests);
+    int Size1 = TrackTemp.size();//get the size of the vector
+    int Size2 = TrackTemp2.size();//get the size of the vector
+    vector<int> mergedTracks(Requests);//create a vector of the size of the requests
 
-    sort(tempTrack.begin(), tempTrack.end()); 
-    sort(tempTrack2.begin(), tempTrack2.end()); 
+    sort(TrackTemp.begin(), TrackTemp.end());//sort the vector
+    sort(TrackTemp2.begin(), TrackTemp2.end());
 
-    for (int i = 0; i < size1; i++) 
+    for (int i = 0; i < Size1; i++)
     {
-        mergedTracks[i] = tempTrack[i];
+        mergedTracks[i] = TrackTemp[i];//push the track to the vector
     }
 
-    int x = 0;
-    int mergedSize = mergedTracks.size();
+    int x = 0;//set x to 0
+    int mergedSize = mergedTracks.size();//get the size of the vector
 
-    for (int i = size1; i < mergedSize; i++) 
+    for (int i = Size1; i < mergedSize; i++)
     {
-        mergedTracks[i] = tempTrack2[x];
+        mergedTracks[i] = TrackTemp2[x];
         x++;
     }
 
-    vector<int> tracksTraversed(requests);
-    vector<int> sectorsTraversed(requests);
-    vector<int> seekTimes(requests);
+    vector<int> TraversedTracks(Requests);
+    vector<int> TraversedSectors(Requests);
+    vector<int> STimes(Requests);
 
-    for (int i = 0; i < size1; i++) //loop through the first tempTrack
+    for (int i = 0; i < Size1; i++)
     {
-        if (i != size1)
+        if (i != Size1)
         {
-            tracksTraversed[i] = tempTrack[i + 1] - tempTrack[i]; //will capture the tracks traversed by subtracting the n+1 element by the n element
+            TraversedTracks[i] = TrackTemp[i + 1] - TrackTemp[i];
 
-            for (int y = 0; y < requestedSectors[i]; y++) //sectors are captured as well
+            for (int y = 0; y < SectorsRequested[i]; y++)
             {
-                sectorsTraversed[i] = requestedSectors[i];
+                TraversedSectors[i] = SectorsRequested[i];
             }
         }
     }
 
-    for (int i = 0; i < size2; i++) // loop through the second temp track
+    for (int i = 0; i < Size2; i++)
     {
-        if (i != size2)
+        if (i != Size2)
         {
-            tracksTraversed[i + size1] = tempTrack2[i + 1] - tempTrack2[i]; //will capture the tracks traversed by subtracting the n+1 element by the n element
+            TraversedTracks[i + Size1] = TrackTemp2[i + 1] - TrackTemp2[i];
 
-            for (int y = 0; y < requestedSectors[i + size1]; y++) // the sectors are captured as well
+            for (int y = 0; y < SectorsRequested[i + Size1]; y++)
             {
-                sectorsTraversed[i + size1] = requestedSectors[i] + size1;
+                TraversedSectors[i + Size1] = SectorsRequested[i] + Size1;
             }
         }
     }
 
-    for (int i = 0; i < requests; i++) //each seek time is calculated by track traversed + the sectors traversed
+    for (int i = 0; i < Requests; i++)
     {
-        seekTimes[i] = tracksTraversed[i] + sectorsTraversed[i];
+        STimes[i] = TraversedTracks[i] + TraversedSectors[i];
     }
 
-    //  int seekSize = seekTimes.size();
+    long SeekTimeAverage = 0;
 
-    long seekTimeAverage = 0;
-
-    for (int i = 0; i < requests; i++) //each seek time is summed up
+    for (int i = 0; i < Requests; i++)
     {
-        seekTimeAverage += seekTimes[i];
+        SeekTimeAverage += STimes[i];
     }
 
-    if (requests != 0)
+    if (Requests != 0)
     {
-        seekTimeAverage = seekTimeAverage / requests; //summed seek time is divided by the number of requests to find the average seek time
+        SeekTimeAverage = SeekTimeAverage / Requests;
     }
     else
     {
-        cout << "hello" << endl;
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
     }
-    return seekTimeAverage;
+    return SeekTimeAverage;
 }
 
-/*
-int fifo(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
-
-Author: Jorge Gonzalez
-
-Date: 11/21/2019
-
-Description: simulates the fifo disk algorithm for first in first out, summmed seek time is averaged and returned
-
-Parameters:
-
-requests              I/P   int     number of requests
-
-requestedTracks       I/P   int[]   the requested tracks
-
-requestedSectors      I/P   int[]   the requested sectors
-
-initialHeadLocation   I/P   int     the initial starting point
- */
-int fifo(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+int fifo(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation)//simulate the fifo scheduling policy
 {
-    vector<int> tempTrack(requests);
-    vector<int> tracksTraversed(requests);
-    vector<int> sectorsTraversed(requests);
-    vector<int> seekTime(requests);
-    for (int i = 0; i < requests; i++) //the requested tracks and sectors are stored in temp arrays
+    vector<int> TrackTemp(Requests);
+    vector<int> TraversedTracks(Requests);
+    vector<int> TraversedSectors(Requests);
+    vector<int> seekTime(Requests);
+    for (int i = 0; i < Requests; i++)
     {
-        tempTrack[i] = requestedTracks[i];
-        sectorsTraversed[i] = requestedSectors[i];
+        TrackTemp[i] = TracksRequested[i];
+        TraversedSectors[i] = SectorsRequested[i];
     }
 
-    for (int i = 0; i < requests; i++) //number of tracks traversed is calculated by if n+1 - n element is a positive number, store than number, if not then n - (n+1) is stored
+    for (int i = 0; i < Requests; i++)
     {
-        if (i != requests)
+        if (i != Requests)
         {
-            if (tempTrack[i] - (tempTrack[i + 1]) >= 0) //checks to see if the difference is positive
+            if (TrackTemp[i] - (TrackTemp[i + 1]) >= 0)
             {
-                tracksTraversed[i] = tempTrack[i] - tempTrack[i + 1]; //if it is then store the tracks traversed
+                TraversedTracks[i] = TrackTemp[i] - TrackTemp[i + 1];
             }
-            else if (tempTrack[i + 1] - (tempTrack[i]) >= 0) //checks to see if the difference is positive
+            else if (TrackTemp[i + 1] - (TrackTemp[i]) >= 0)
             {
-                tracksTraversed[i] = tempTrack[i + 1] - tempTrack[i]; // if it is then store the tracks traversed
+                TraversedTracks[i] = TrackTemp[i + 1] - TrackTemp[i];
             }
         }
     }
 
-    for (int i = 0; i < requests; i++) //seek time is calculated by tracks traversed + sectors traversed
+    for (int i = 0; i < Requests; i++)
     {
-        seekTime[i] = tracksTraversed[i] + sectorsTraversed[i];
+        seekTime[i] = TraversedTracks[i] + TraversedSectors[i];
     }
 
-    //  int seekSize = seekTime.size();
+    long SeekTimeAverage = 0;
 
-    long seekTimeAverage = 0;
-
-    for (int i = 0; i < requests; i++) //each seek time is summed up
+    for (int i = 0; i < Requests; i++)
     {
-        seekTimeAverage += seekTime[i];
+        SeekTimeAverage += seekTime[i];
     }
 
-    if (requests != 0)
+    if (Requests != 0)
     {
-        seekTimeAverage = seekTimeAverage / requests; //average is calculated by the summed seek time / number of requests
+        SeekTimeAverage = SeekTimeAverage / Requests;
     }
     else
     {
-        cout << "hello" << endl;
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
     }
-    return seekTimeAverage;
+    return SeekTimeAverage;
 }
 
-/*
-int sstf(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
-
-Author: Jorge Gonzalez
-
-Date: 11/21/2019
-
-Description: simulates the sstf disk algorithm and returns the seek time average
-
-Parameters
-
-requests               I/P   int   number of requests
-
-requestedTracks        I/P   int[] the requested tracks
-
-requestedSectors       I/P   int[] the requested sectors
-
-initialHeadLocation    I/P   int   initial starting point
- */
-int sstf(int requests, int requestedTracks[], int requestedSectors[], int initialHeadLocation)
+int sstf(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation)
 {
-    vector<int> tempTrack(requests);
-    vector<int> tempSector(requests);
+    vector<int> TrackTemp(Requests);
+    vector<int> tempSector(Requests);
     int currentDifference = 2500;
-    vector<int> tracksTraversed(requests);
-    for (int i = 0; i < requests; i++) //requested sectors and tracks are stored in a temp array
+    vector<int> TraversedTracks(Requests);
+    for (int i = 0; i < Requests; i++)
     {
-        tempTrack[i] = requestedTracks[i];
-        tempSector[i] = requestedSectors[i];
+        TrackTemp[i] = TracksRequested[i];
+        tempSector[i] = SectorsRequested[i];
     }
 
-    for (int i = 0; i < requests; i++) //loop through the number of requests, sorting by shortest number of tracks traversed
+    for (int i = 0; i < Requests; i++)
     {
 
-        currentDifference = 2500;              //this will be the initial difference at the start of every loop
-        for (int y = i + 1; y < requests; y++) //compare each element with every other element in the array
+        currentDifference = 2500;
+        for (int y = i + 1; y < Requests; y++)
         {
-            if (y != requests) //checks to see if it reached the end
+            if (y != Requests)
             {
-                if ((tempTrack[i] - tempTrack[y]) >= 0) //checks to see if the difference between elements is positive
+                if ((TrackTemp[i] - TrackTemp[y]) >= 0)
                 {
-                    if ((tempTrack[i] - tempTrack[y]) < currentDifference) //checks to see if the current difference is smaller than the stored difference
+                    if ((TrackTemp[i] - TrackTemp[y]) < currentDifference)
                     {
-                        currentDifference = tempTrack[i] - tempTrack[y]; //if it is then store it as the new difference
+                        currentDifference = TrackTemp[i] - TrackTemp[y];
                     }
                 }
-                else if ((tempTrack[y] - tempTrack[i]) >= 0) //checks to see if the difference between elements is positive
+                else if ((TrackTemp[y] - TrackTemp[i]) >= 0)
                 {
-                    if ((tempTrack[y] - tempTrack[i]) < currentDifference) //checks to see if the current difference is smaller than the stored one
+                    if ((TrackTemp[y] - TrackTemp[i]) < currentDifference)
                     {
-                        currentDifference = tempTrack[y] - tempTrack[i]; //if it is, then it is the new stored difference
+                        currentDifference = TrackTemp[y] - TrackTemp[i];
                     }
                 }
             }
         }
-        tracksTraversed[i] = currentDifference; //once each element has been checked, the current difference is stored into the array and restart the process
+        TraversedTracks[i] = currentDifference;
     }
 
-    vector<int> seekTime(requests);
+    vector<int> seekTime(Requests);
 
-    for (int i = 0; i < requests; i++)
+    for (int i = 0; i < Requests; i++)
     {
-        seekTime[i] = tracksTraversed[i] + tempSector[i]; //calculate the average seek time by adding track traverse + temp sector
+        seekTime[i] = TraversedTracks[i] + tempSector[i];
     }
 
-    long seekTimeAverage = 0;
+    long SeekTimeAverage = 0;
 
-    for (int i = 0; i < requests; i++)
+    for (int i = 0; i < Requests; i++)
     {
-        seekTimeAverage += seekTime[i]; //sum each seek time
+        SeekTimeAverage += seekTime[i];
     }
 
-    if (requests != 0)
+    if (Requests != 0)
     {
-        seekTimeAverage = seekTimeAverage / requests; //calculate the avg by dividing the sum by the number of requests
+        SeekTimeAverage = SeekTimeAverage / Requests;
     }
     else
     {
-        cout << "hello" << endl;
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
     }
-    return seekTimeAverage;
+    return SeekTimeAverage;
 }

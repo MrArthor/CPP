@@ -1,548 +1,389 @@
-#include <iostream>
-#include <ctime>
+/*
+File: Implementation.cpp
+Author: Mr Arthor
+Procedures:
 
-#include <windows.h>
-#include<bits/stdc++.h>
-//Total assets including both hospitals and warehouse
-#define Assets 11
+-uniform - provides a random uniform number
+-scan - simulates the scan search policy
+-cscan - simulates the cscan search policy
+-fifo - simulates the first in first out policy
+-sstf - simulates the sstf policy
+ */
 
+#include <iostream>      //cin, cout
+#include <stdio.h>       //printf
+#include <stdlib.h>      //srand, rand
+#include <time.h>        //time
+#include <cstddef>       //size_t
+#include <bits/stdc++.h> //
+#include <vector>        //vector
+#include <fstream>       //ifstream
 using namespace std;
 
-struct Information
-{
-	int Id;
-	string Name, Address;
-	string Type;
-} Info[Assets] = {{0, "SJM", "Sector 63", "h"},
-				  {1, "Prakash", "Sector 33", "h"},
-				  {2, "Jaypee", "Sector 128", "h"},
-				  {3, "Max", "Sector 19", "h"},
-				  {4, "Yatharth", "Sector 110", "h"},
-				  {5, "NMC", "Sector 30", "h"},
-				  {6, "Kailash", "Sector 27", "h"},
-				  {7, "Apollo", "Sector 26", "h"},
-				  {8, "Singh", " Sector 4", " W "},
-				  {9, "Mathura", "Sector 62", " W "},
-				  {10, "Maheshwari", "Sector 69", "w"}};
+int uniform(int, int);             //provides a random uniform number
+int scan(int, int[], int[], int);  //simulates the scan scheduling policy
+int cscan(int, int[], int[], int); //simulates the cscan scheduling policy
+int fifo(int, int[], int[], int);  //simulates the first in first out policy
+int sstf(int, int[], int[], int);  //simulates the sstf policy
 
-// Data structure to store a graph edge
-struct Node
+int main() //
 {
-	int Val;
-	Information *Data;
-	Node *Next;
-	int Traffic;
-};
+	int n;
+	cin>>n;
+    srand(time(NULL));                                     //seed the random number generator
+    int InitialHeadLocation = 5000 / 2;                    //initial head location
+    int scanSeekTimeAverage = 0, cscanSeekTimeAverage = 0; //average seek time for scan policy
+    int fifoSeekTimeAverage = 0, sstfSeekTimeAverage = 0;  //average seek time for fifo policy
 
-// Function to print all neighboring vertices of a given vertex
-void printList(Node *ptr)
-{
-	while (ptr != nullptr)
-	{
-		cout << " Road to ";
-		if (ptr->Data->Type == "h")
-			cout << "hospital -";
-		else
-			cout << "warehouse -";
-		cout << ptr->Data->Name << " has traffic level " << ptr->Traffic << "\n";
-		ptr = ptr->Next;
-	}
-	cout << endl;
+    for (int i = 0; i < n; i++)
+    {
+        int Requests = uniform(500, 1000); //number of Requests
+        int TracksRequested[Requests];     //array of requested tracks
+        int SectorsRequested[Requests];    //array of requested sectors
+        for (int y = 0; y < Requests; y++) //populate the arrays
+        {
+            TracksRequested[y] = uniform(0, 5000);   //populate the track array
+            SectorsRequested[y] = uniform(0, 12000); //populate the sector array
+        }
+
+        cout << "Number of Requests: " << Requests << endl; //print the number of Requests
+
+        scanSeekTimeAverage += scan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                                 //calculate the average seek time for scan policy
+        cout << "Scan Avg Seek " << i + 1 << " :" << scan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl;   //print the average seek time for scan policy
+        cscanSeekTimeAverage += cscan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                               //calculate the average seek time for cscan policy
+        cout << "cScan Avg Seek " << i + 1 << " :" << cscan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl; //print the average seek time for cscan policy
+        fifoSeekTimeAverage += fifo(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                                 //calculate the average seek time for fifo policy
+        cout << "Fifo Avg Seek " << i + 1 << " :" << scan(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl;   //print the average seek time for fifo policy
+        sstfSeekTimeAverage += sstf(Requests, TracksRequested, SectorsRequested, InitialHeadLocation);                                 //calculate the average seek time for sstf policy
+        cout << "SSTF Avg Seek " << i + 1 << " :" << sstf(Requests, TracksRequested, SectorsRequested, InitialHeadLocation) << endl;   //print the average seek time for sstf policy
+
+        cout << "------------------------" << endl; //print a line
+    }
+
+    scanSeekTimeAverage = scanSeekTimeAverage / n
+	;                          //calculate the average seek time for scan policy
+    cscanSeekTimeAverage = cscanSeekTimeAverage /n;                        //calculate the average seek time for cscan policy
+    fifoSeekTimeAverage = fifoSeekTimeAverage / n;                          //calculate the average seek time for fifo policy
+    sstfSeekTimeAverage = sstfSeekTimeAverage / n;                          //calculate the average seek time for sstf policy
+    cout << "Scan Overall Avg Seek Time: " << scanSeekTimeAverage << endl;   //print the average seek time for scan policy
+    cout << "cScan Overall Avg Seek Time: " << cscanSeekTimeAverage << endl; //print the average seek time for cscan policy
+    cout << "Fifo Overall Avg Seek Time: " << fifoSeekTimeAverage << endl;   //print the average seek time for fifo policy
+    cout << "SSTF Overall Avg Seek Time: " << sstfSeekTimeAverage << endl;   //print the average seek time for sstf policy
+
+    return 0; //end program
 }
 
-// Data structure to store a graph edge
-struct Edge
+int uniform(int low, int high) //provides a random uniform number
 {
-	int Source, Destination, Traffic;
-};
+top:
+    int x;
+    int y = high - low + 1;
+    int z = rand() / y;
 
-class Graph
-{
-	// Function to allocate a new node for the adjacency list
-	Node *GetAdjListNode(int Destination, Node *Head, int Traffic)
-	{
-		Node *newNode = new Node;
-		newNode->Val = Destination;
+    if (z == 0)
+    {
+        goto top;
+    }
 
-		// point new node to the current Head
-		newNode->Next = Head;
-		newNode->Traffic = Traffic;
-		newNode->Data = &Info[Destination];
-		return newNode;
-	}
+    while (y <= (x = (rand() / z)))
+        ;
 
-	int N; // total number of nodes in the graph
-
-public:
-	// An array of pointers to Node to represent the
-	// adjacency list
-	Node **Head;
-
-	// Constructor
-	Graph(Edge Edges[], int n, int N)
-	{
-		// allocate memory
-		Head = new Node *[N]();
-		this->N = N;
-
-		// initialize Head pointer for all vertices
-		for (int i = 0; i < N; i++)
-		{
-			Head[i] = nullptr;
-		}
-
-		// add Edges to the directed graph
-		for (unsigned i = 0; i < n; i++)
-		{
-			int Source = Edges[i].Source;
-			int Destination = Edges[i].Destination;
-			int Traffic = Edges[i].Traffic;
-			// insert at the beginning
-			Node *newNode = GetAdjListNode(Destination, Head[Source], Traffic);
-
-			// point Head pointer to the new node
-			Head[Source] = newNode;
-
-			// uncomment the following code for undirected graph
-
-			newNode = GetAdjListNode(Source, Head[Destination], Traffic);
-
-			// change Head pointer to point to the new node
-			Head[Destination] = newNode;
-		}
-	}
-
-	void printGraph()
-	{
-		// print adjacency list representation of a graph
-		for (int i = 0; i < N; i++)
-		{
-			// print given vertex
-			cout << "Starting from " << Info[i].Name << ": \n";
-
-			// print all its neighboring vertices
-			printList(this->Head[i]);
-		}
-	}
-
-	int findDestinationId(string name, int a, int b, int c)
-	{
-		for (int i = 0; i < Assets; i++)
-		{
-			if (Info[i].Name == name)
-			{
-				return Info[i].Id;
-			}
-		}
-		return -1;
-	}
-
-	int Vertices()
-	{
-		return N;
-	}
-	// Destinationructor
-	~Graph()
-	{
-		for (int i = 0; i < N; i++)
-		{
-			delete[] Head[i];
-		}
-
-		delete[] Head;
-	}
-};
-
-int random(int min, int max)
-{
-	int random_variable = rand();
-	return min + (random_variable % (max - min + 1));
+    return x + low;
 }
 
-int convert(int val)
+int scan(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation) //simulates the scan scheduling policy
 {
-	return 5 * val;
+
+    vector<int> TrackTemp;
+    vector<int> TrackTemp2;
+
+    for (int i = 0; i < Requests; i++)
+    {
+        if (TracksRequested[i] >= InitialHeadLocation)
+        {
+            TrackTemp.push_back(TracksRequested[i]);
+        }
+        else
+        {
+            TrackTemp2.push_back(TracksRequested[i]);
+        }
+    }
+    int Size1 = TrackTemp.size();
+    int Size2 = TrackTemp2.size();
+    vector<int> mergedTracks(Requests);
+
+    sort(TrackTemp.begin(), TrackTemp.end());//sort the vector
+    sort(TrackTemp2.begin(), TrackTemp2.end(), greater<int>());//sort the vector
+
+    for (int i = 0; i < Size1; i++)
+
+    {
+        mergedTracks[i] = TrackTemp[i];
+    }
+    int mergeSize = mergedTracks.size();
+
+    int x = 0;
+    for (int i = Size1; i < mergeSize; i++)
+    {
+        mergedTracks[i] = TrackTemp2[x];
+        x++;
+    }
+
+    vector<int> TraversedTracks(Requests);
+    vector<int> TraversedSectors(Requests);
+    vector<int> STimes(Requests);
+
+    for (int i = 0; i < Size1; i++)
+    {
+
+        if (i != Size1)
+        {
+            TraversedTracks[i] = TrackTemp[i + 1] - TrackTemp[i];
+
+            for (int y = 0; y < SectorsRequested[i]; y++)
+            {
+                TraversedSectors[i] = SectorsRequested[i];
+            }
+        }
+    }
+    for (int i = 0; i < Size2; i++)
+    {
+        if (i != Size2)
+        {
+            TraversedTracks[i + Size1] = TrackTemp2[i] - TrackTemp2[i + 1];
+
+            for (int y = 0; y < SectorsRequested[i + Size1]; y++)
+            {
+                TraversedSectors[i + Size1] = SectorsRequested[i + Size1];
+            }
+        }
+    }
+
+    for (int i = 0; i < Requests; i++)
+    {
+
+        STimes[i] = TraversedTracks[i] + TraversedSectors[i];
+    }
+    long SeekTimeAverage = 0;
+
+    for (int i = 0; i < Requests; i++)
+    {
+        SeekTimeAverage += STimes[i];
+    }
+
+    if (Requests != 0)
+    {
+        SeekTimeAverage = SeekTimeAverage / Requests;
+    }
+    else
+    {
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
+    }
+    return SeekTimeAverage;
 }
 
-// Structure to represent a min heap node
-struct MinHeapNode
+int cscan(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation)//simulates the cscan
 {
-	int v;
-	int dist;
-};
+    vector<int> TrackTemp;
+    vector<int> TrackTemp2;
 
-// Structure to represent a min heap
-struct MinHeap
-{
+    for (int i = 0; i < Requests; i++)
+    {
+        if (TracksRequested[i] >= InitialHeadLocation)//if the track is greater than the initial head location
+        {
+            TrackTemp.push_back(TracksRequested[i]);//push the track to the vector
+        }
+        else
+        {
+            TrackTemp2.push_back(TracksRequested[i]);//push the track to the vector
+        }
+       
+    }
 
-	// Number of heap nodes present currently
-	int size;
+    int Size1 = TrackTemp.size();//get the size of the vector
+    int Size2 = TrackTemp2.size();//get the size of the vector
+    vector<int> mergedTracks(Requests);//create a vector of the size of the requests
 
-	// Capacity of min heap
-	int capacity;
+    sort(TrackTemp.begin(), TrackTemp.end());//sort the vector
+    sort(TrackTemp2.begin(), TrackTemp2.end());
 
-	// This is needed for decreaseKey()
-	int *pos;
-	struct MinHeapNode **array;
-};
+    for (int i = 0; i < Size1; i++)
+    {
+        mergedTracks[i] = TrackTemp[i];//push the track to the vector
+    }
 
-// A utility function to create a
-// new Min Heap Node
-struct MinHeapNode *newMinHeapNode(int v,
-								   int dist)
-{
-	struct MinHeapNode *minHeapNode =
-		(struct MinHeapNode *)
-			malloc(sizeof(struct MinHeapNode));
-	minHeapNode->v = v;
-	minHeapNode->dist = dist;
-	return minHeapNode;
+    int x = 0;//set x to 0
+    int mergedSize = mergedTracks.size();//get the size of the vector
+
+    for (int i = Size1; i < mergedSize; i++)
+    {
+        mergedTracks[i] = TrackTemp2[x];
+        x++;
+    }
+
+    vector<int> TraversedTracks(Requests);
+    vector<int> TraversedSectors(Requests);
+    vector<int> STimes(Requests);
+
+    for (int i = 0; i < Size1; i++)
+    {
+        if (i != Size1)
+        {
+            TraversedTracks[i] = TrackTemp[i + 1] - TrackTemp[i];
+
+            for (int y = 0; y < SectorsRequested[i]; y++)
+            {
+                TraversedSectors[i] = SectorsRequested[i];
+            }
+        }
+    }
+
+    for (int i = 0; i < Size2; i++)
+    {
+        if (i != Size2)
+        {
+            TraversedTracks[i + Size1] = TrackTemp2[i + 1] - TrackTemp2[i];
+
+            for (int y = 0; y < SectorsRequested[i + Size1]; y++)
+            {
+                TraversedSectors[i + Size1] = SectorsRequested[i] + Size1;
+            }
+        }
+    }
+
+    for (int i = 0; i < Requests; i++)
+    {
+        STimes[i] = TraversedTracks[i] + TraversedSectors[i];
+    }
+
+    long SeekTimeAverage = 0;
+
+    for (int i = 0; i < Requests; i++)
+    {
+        SeekTimeAverage += STimes[i];
+    }
+
+    if (Requests != 0)
+    {
+        SeekTimeAverage = SeekTimeAverage / Requests;
+    }
+    else
+    {
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
+    }
+    return SeekTimeAverage;
 }
 
-// A utility function to create a Min Heap
-struct MinHeap *createMinHeap(int capacity)
+int fifo(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation)//simulate the fifo scheduling policy
 {
-	struct MinHeap *minHeap =
-		(struct MinHeap *)
-			malloc(sizeof(struct MinHeap));
-	minHeap->pos = (int *)malloc(
-		capacity * sizeof(int));
-	minHeap->size = 0;
-	minHeap->capacity = capacity;
-	minHeap->array =
-		(struct MinHeapNode **)
-			malloc(capacity *
-				   sizeof(struct MinHeapNode *));
-	return minHeap;
+    vector<int> TrackTemp(Requests);
+    vector<int> TraversedTracks(Requests);
+    vector<int> TraversedSectors(Requests);
+    vector<int> seekTime(Requests);
+    for (int i = 0; i < Requests; i++)
+    {
+        TrackTemp[i] = TracksRequested[i];
+        TraversedSectors[i] = SectorsRequested[i];
+    }
+
+    for (int i = 0; i < Requests; i++)
+    {
+        if (i != Requests)
+        {
+            if (TrackTemp[i] - (TrackTemp[i + 1]) >= 0)
+            {
+                TraversedTracks[i] = TrackTemp[i] - TrackTemp[i + 1];
+            }
+            else if (TrackTemp[i + 1] - (TrackTemp[i]) >= 0)
+            {
+                TraversedTracks[i] = TrackTemp[i + 1] - TrackTemp[i];
+            }
+        }
+    }
+
+    for (int i = 0; i < Requests; i++)
+    {
+        seekTime[i] = TraversedTracks[i] + TraversedSectors[i];
+    }
+
+    long SeekTimeAverage = 0;
+
+    for (int i = 0; i < Requests; i++)
+    {
+        SeekTimeAverage += seekTime[i];
+    }
+
+    if (Requests != 0)
+    {
+        SeekTimeAverage = SeekTimeAverage / Requests;
+    }
+    else
+    {
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
+    }
+    return SeekTimeAverage;
 }
 
-// A utility function to swap two
-// nodes of min heap.
-// Needed for min heapify
-void swapMinHeapNode(struct MinHeapNode **a,
-					 struct MinHeapNode **b)
+int sstf(int Requests, int TracksRequested[], int SectorsRequested[], int InitialHeadLocation)
 {
-	struct MinHeapNode *t = *a;
-	*a = *b;
-	*b = t;
-}
+    vector<int> TrackTemp(Requests);
+    vector<int> tempSector(Requests);
+    int currentDifference = 2500;
+    vector<int> TraversedTracks(Requests);
+    for (int i = 0; i < Requests; i++)
+    {
+        TrackTemp[i] = TracksRequested[i];
+        tempSector[i] = SectorsRequested[i];
+    }
 
-// A standard function to
-// heapify at given idx
-// This function also updates
-// position of nodes when they are swapped.
-// Position is needed for decreaseKey()
-void minHeapify(struct MinHeap *minHeap,
-				int idx)
-{
-	int smallest, left, right;
-	smallest = idx;
-	left = 2 * idx + 1;
-	right = 2 * idx + 2;
+    for (int i = 0; i < Requests; i++)
+    {
 
-	if (left < minHeap->size &&
-		minHeap->array[left]->dist <
-			minHeap->array[smallest]->dist)
-		smallest = left;
+        currentDifference = 2500;
+        for (int y = i + 1; y < Requests; y++)
+        {
+            if (y != Requests)
+            {
+                if ((TrackTemp[i] - TrackTemp[y]) >= 0)
+                {
+                    if ((TrackTemp[i] - TrackTemp[y]) < currentDifference)
+                    {
+                        currentDifference = TrackTemp[i] - TrackTemp[y];
+                    }
+                }
+                else if ((TrackTemp[y] - TrackTemp[i]) >= 0)
+                {
+                    if ((TrackTemp[y] - TrackTemp[i]) < currentDifference)
+                    {
+                        currentDifference = TrackTemp[y] - TrackTemp[i];
+                    }
+                }
+            }
+        }
+        TraversedTracks[i] = currentDifference;
+    }
 
-	if (right < minHeap->size &&
-		minHeap->array[right]->dist <
-			minHeap->array[smallest]->dist)
-		smallest = right;
+    vector<int> seekTime(Requests);
 
-	if (smallest != idx)
-	{
-		// The nodes to be swapped in min heap
-		MinHeapNode *smallestNode =
-			minHeap->array[smallest];
-		MinHeapNode *idxNode =
-			minHeap->array[idx];
+    for (int i = 0; i < Requests; i++)
+    {
+        seekTime[i] = TraversedTracks[i] + tempSector[i];
+    }
 
-		// Swap positions
-		minHeap->pos[smallestNode->v] = idx;
-		minHeap->pos[idxNode->v] = smallest;
+    long SeekTimeAverage = 0;
 
-		// Swap nodes
-		swapMinHeapNode(&minHeap->array[smallest],
-						&minHeap->array[idx]);
+    for (int i = 0; i < Requests; i++)
+    {
+        SeekTimeAverage += seekTime[i];
+    }
 
-		minHeapify(minHeap, smallest);
-	}
-}
-
-// A utility function to check if
-// the given minHeap is ampty or not
-int isEmpty(struct MinHeap *minHeap)
-{
-	return minHeap->size == 0;
-}
-
-// Standard function to extract
-// minimum node from heap
-struct MinHeapNode *extractMin(struct MinHeap *
-								   minHeap)
-{
-	if (isEmpty(minHeap))
-		return NULL;
-
-	// Store the root node
-	struct MinHeapNode *root =
-		minHeap->array[0];
-
-	// Replace root node with last node
-	struct MinHeapNode *lastNode =
-		minHeap->array[minHeap->size - 1];
-	minHeap->array[0] = lastNode;
-
-	// Update position of last node
-	minHeap->pos[root->v] = minHeap->size - 1;
-	minHeap->pos[lastNode->v] = 0;
-
-	// Reduce heap size and heapify root
-	--minHeap->size;
-	minHeapify(minHeap, 0);
-
-	return root;
-}
-
-// Function to decreasy dist value
-// of a given vertex v. This function
-// uses pos[] of min heap to get the
-// current index of node in min heap
-void decreaseKey(struct MinHeap *minHeap,
-				 int v, int dist)
-{
-	// Get the index of v in  heap array
-	int i = minHeap->pos[v];
-
-	// Get the node and update its dist value
-	minHeap->array[i]->dist = dist;
-
-	// Travel up while the complete
-	// tree is not hepified.
-	// This is a O(Logn) loop
-	while (i && minHeap->array[i]->dist <
-					minHeap->array[(i - 1) / 2]->dist)
-	{
-		// Swap this node with its parent
-		minHeap->pos[minHeap->array[i]->v] =
-			(i - 1) / 2;
-		minHeap->pos[minHeap->array[(i - 1) / 2]->v] = i;
-		swapMinHeapNode(&minHeap->array[i],
-						&minHeap->array[(i - 1) / 2]);
-
-		// move to parent index
-		i = (i - 1) / 2;
-	}
-}
-
-// A utility function to check if a given vertex
-// 'v' is in min heap or not
-bool isInMinHeap(struct MinHeap *minHeap, int v)
-{
-	if (minHeap->pos[v] < minHeap->size)
-		return true;
-	return false;
-}
-
-struct Warehouse
-{
-	int Id;
-	int dist;
-};
-
-// A utility function used to print the solution
-void SmallestRoute(int dist[], int n, int src, int dest)
-{
-	cout << "Time taken from warehouse " << Info[src].Name << " to reach hospital " << Info[dest].Name << " is " << convert(dist[dest]) << " minutes." << endl;
-}
-
-// The main function that calculates
-// distances of shortest paths from src to all
-// vertices. It is a O(ELogV) function
-Warehouse dijkstra(Graph *graph, int src, int dest)
-{
-
-	// Get the number of vertices in graph
-	int V = graph->Vertices();
-
-	// dist values used to pick
-	// minimum weight edge in cut
-	int dist[V];
-
-	// minHeap represents set E
-	struct MinHeap *minHeap = createMinHeap(V);
-
-	// Initialize min heap with all
-	// vertices. dist value of all vertices
-	for (int v = 0; v < V; ++v)
-	{
-		dist[v] = INT32_MAX;
-		minHeap->array[v] = newMinHeapNode(v, dist[v]);
-		minHeap->pos[v] = v;
-	}
-
-	// Make dist value of src vertex
-	// as 0 so that it is extracted first
-	minHeap->array[src] =
-		newMinHeapNode(src, dist[src]);
-	minHeap->pos[src] = src;
-	dist[src] = 0;
-	decreaseKey(minHeap, src, dist[src]);
-
-	// Initially size of min heap is equal to V
-	minHeap->size = V;
-
-	// In the followin loop,
-	// min heap contains all nodes
-	// whose shortest distance
-	// is not yet finalized.
-	while (!isEmpty(minHeap))
-	{
-		// Extract the vertex with
-		// minimum distance value
-		struct MinHeapNode *minHeapNode =
-			extractMin(minHeap);
-
-		// Store the extracted vertex number
-		int u = minHeapNode->v;
-
-		// Traverse through all adjacent
-		// vertices of u (the extracted
-		// vertex) and update
-		// their distance values
-		Node *pCrawl =
-			graph->Head[u];
-		while (pCrawl != NULL)
-		{
-			int v = pCrawl->Val;
-
-			// If shortest distance to v is
-			// not finalized yet, and distance to v
-			// through u is less than its
-			// previously calculated distance
-			if (isInMinHeap(minHeap, v) &&
-				dist[u] != INT32_MAX &&
-				pCrawl->Traffic + dist[u] < dist[v])
-			{
-				dist[v] = dist[u] + pCrawl->Traffic;
-
-				// update distance
-				// value in min heap also
-				decreaseKey(minHeap, v, dist[v]);
-			}
-			pCrawl = pCrawl->Next;
-		}
-	}
-
-	// print the calculated shortest distances
-	SmallestRoute(dist, V, src, dest);
-	Warehouse w = {src, dist[dest]};
-	return w;
-}
-
-Graph *CreateMap()
-{
-
-	Edge Edges[19] =
-		{
-			// pair `(x, y)` represents an edge from `x` to `y`
-			{0, 5},
-			{1, 5},
-			{1, 2},
-			{2, 3},
-			{2, 4},
-			{3, 5},
-			{3, 6},
-			{4, 7},
-			{4, 8},
-			{5, 9},
-			{5, 10},
-			{6, 5},
-			{7, 6},
-			{7, 10},
-			{8, 7},
-			{8, 0},
-			{9, 2},
-			{9, 3},
-			{10, 9}};
-	for (int i = 0; i < sizeof(Edges) / sizeof(Edges[0]); i++)
-	{
-		Edges[i].Traffic = random(1, 10);
-	}
-	// total number of nodes in the graph
-	int N = 11;
-
-	// calculate the total number of Edges
-	int n = 19;
-
-	// construct graph
-	Graph *Graphic = new Graph(Edges, n, N);
-
-	return Graphic;
-}
-
-//--Graph implementation in C++ without using STL
-int main()
-{
-	srand(time(nullptr)); //use current time as seed for random generator
-
-	Graph *G = CreateMap();
-	Sleep(1000);
-	cout << " -------- Welcome to Covid-19 Resource Delivery System ----------- \n\n";
-
-	cout << "For the purpose of this demonstration, we have considered 8 hospitals and 3 warehouses\n";
-
-	cout << "Details of the above is as follows : \n";
-
-	for (int i = 0; i < Assets; i++)
-	{
-		if (Info[i].Type == "h")
-		{
-			cout << "Hospital : " << Info[i].Name << ", " << Info[i].Address << endl;
-		}
-		else
-		{
-			cout << "Warehouse : " << Info[i].Name << ", " << Info[i].Address << endl;
-		}
-	}
-	cout << "\n";
-	G->printGraph();
-
-	cout << "Enter the name of hospital that require resources : ";
-	string hospital;
-	cin >> hospital;
-
-	int a, b, c;
-	cout << "Enter the required no of oxygen cylinders/concentrator : ";
-	cin >> a;
-	cout << "Enter the required no of PPE kit : ";
-	cin >> b;
-	cout << "Enter the required no of remdesivir : ";
-	cin >> c;
-
-	int dest = G->findDestinationId(hospital, a, b, c);
-	cout << endl;
-
-	if (dest == -1)
-	{
-		cout << "Invalid hospital name. Please enter a valid hospital name." << endl;
-	}
-	else
-	{
-		Warehouse fastest = {-1, INT32_MAX};
-
-		for (int i = 8; i < 11; i++)
-		{
-			Warehouse temp = dijkstra(G, Info[i].Id, dest);
-			if (temp.dist < fastest.dist)
-				fastest = temp;
-		}
-
-		cout << "\nAmong these, the most efficient warehouse for delivering the required resources is : ";
-
-		cout << Info[fastest.Id].Name << endl;
-	}
-	system("pause");
-	return 0;
+    if (Requests != 0)
+    {
+        SeekTimeAverage = SeekTimeAverage / Requests;
+    }
+    else
+    {
+        cout << "Number Of Requests Is Hardcoded Is 0" << endl;
+    }
+    return SeekTimeAverage;
 }

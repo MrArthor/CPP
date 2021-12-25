@@ -1,548 +1,339 @@
-#include <iostream>
-#include <ctime>
-
-#include <windows.h>
-#include<bits/stdc++.h>
-//Total assets including both hospitals and warehouse
-#define Assets 11
-
+#include <bits/stdc++.h>
 using namespace std;
+#define EPSILON 0.01
 
-struct Information
+int BisectionMethod()
 {
-	int Id;
-	string Name, Address;
-	string Type;
-} Info[Assets] = {{0, "SJM", "Sector 63", "h"},
-				  {1, "Prakash", "Sector 33", "h"},
-				  {2, "Jaypee", "Sector 128", "h"},
-				  {3, "Max", "Sector 19", "h"},
-				  {4, "Yatharth", "Sector 110", "h"},
-				  {5, "NMC", "Sector 30", "h"},
-				  {6, "Kailash", "Sector 27", "h"},
-				  {7, "Apollo", "Sector 26", "h"},
-				  {8, "Sindhu Trade", " Sector 4", " W "},
-				  {9, "Ecom Express", "Sector 62", " W "},
-				  {10, "Household goods", "Sector 69", "w"}};
-
-// Data structure to store a graph edge
-struct Node
-{
-	int Val;
-	Information *Data;
-	Node *Next;
-	int Traffic;
-};
-
-// Function to print all neighboring vertices of a given vertex
-void printList(Node *ptr)
-{
-	while (ptr != nullptr)
+	// This declares a lambda, which can be called just like a function
+	auto func = [&](double x)
 	{
-		cout << " Road to ";
-		if (ptr->Data->Type == "h")
-			cout << "hospital -";
-		else
-			cout << "warehouse -";
-		cout << ptr->Data->Name << " has traffic level " << ptr->Traffic << "\n";
-		ptr = ptr->Next;
-	}
-	cout << endl;
+		return x * x * x - x * x + 2;
+	};
+
+	auto bisection = [&](double a, double b)
+	{
+		if (func(a) * func(b) >= 0)
+		{
+			cout << "You have not assumed right a and b\n";
+			return;
+		}
+
+		double c = a;
+		while ((b - a) >= EPSILON)
+		{
+			// Find middle point
+			c = (a + b) / 2;
+
+			// Check if middle point is root
+			if (func(c) == 0.0)
+				break;
+
+			// Decide the side to repeat the steps
+			else if (func(c) * func(a) < 0)
+				b = c;
+			else
+				a = c;
+		}
+		cout << "The value of root is : " << c;
+	};
+
+	double a = -200, b = 300;
+	bisection(a, b);
+	return 0;
 }
 
-// Data structure to store a graph edge
-struct Edge
+int NRMethod()
 {
-	int Source, Destination, Traffic;
-};
+	auto func = [&](double x)
+	{
+		return x * x * x - x * x + 2;
+	};
 
-class Graph
+	// Derivative of the above function which is 3*x^x - 2*x
+	auto derivFunc = [&](double x)
+	{
+		return 3 * x * x - 2 * x;
+	};
+
+	// Function to find the root
+	auto newtonRaphson = [&](double x)
+	{
+		double h = func(x) / derivFunc(x);
+		while (abs(h) >= EPSILON)
+		{
+			h = func(x) / derivFunc(x);
+
+			// x(i+1) = x(i) - f(x) / f'(x)
+			x = x - h;
+		}
+
+		cout << "The value of the root is : " << x;
+	};
+
+	// Driver program to test above
+	double x0 = -20; // Initial values assumed
+	newtonRaphson(x0);
+	return 0;
+}
+
+int NewtonDividedDifferenceMethod()
 {
-	// Function to allocate a new node for the adjacency list
-	Node *GetAdjListNode(int Destination, Node *Head, int Traffic)
+	auto proterm = [&](int i, float value, float x[])
 	{
-		Node *newNode = new Node;
-		newNode->Val = Destination;
-
-		// point new node to the current Head
-		newNode->Next = Head;
-		newNode->Traffic = Traffic;
-		newNode->Data = &Info[Destination];
-		return newNode;
-	}
-
-	int N; // total number of nodes in the graph
-
-public:
-	// An array of pointers to Node to represent the
-	// adjacency list
-	Node **Head;
-
-	// Constructor
-	Graph(Edge Edges[], int n, int N)
-	{
-		// allocate memory
-		Head = new Node *[N]();
-		this->N = N;
-
-		// initialize Head pointer for all vertices
-		for (int i = 0; i < N; i++)
+		float pro = 1;
+		for (int j = 0; j < i; j++)
 		{
-			Head[i] = nullptr;
+			pro = pro * (value - x[j]);
 		}
+		return pro;
+	};
 
-		// add Edges to the directed graph
-		for (unsigned i = 0; i < n; i++)
-		{
-			int Source = Edges[i].Source;
-			int Destination = Edges[i].Destination;
-			int Traffic = Edges[i].Traffic;
-			// insert at the beginning
-			Node *newNode = GetAdjListNode(Destination, Head[Source], Traffic);
-
-			// point Head pointer to the new node
-			Head[Source] = newNode;
-
-			// uncomment the following code for undirected graph
-
-			newNode = GetAdjListNode(Source, Head[Destination], Traffic);
-
-			// change Head pointer to point to the new node
-			Head[Destination] = newNode;
-		}
-	}
-
-	void printGraph()
+	// Function for calculating
+	// divided difference table
+	auto dividedDiffTable = [&](float x[], float y[][10], int n)
 	{
-		// print adjacency list representation of a graph
-		for (int i = 0; i < N; i++)
+		for (int i = 1; i < n; i++)
 		{
-			// print given vertex
-			cout << "Starting from " << Info[i].Name << ": \n";
-
-			// print all its neighboring vertices
-			printList(this->Head[i]);
-		}
-	}
-
-	int findDestinationId(string name, int a, int b, int c)
-	{
-		for (int i = 0; i < Assets; i++)
-		{
-			if (Info[i].Name == name)
+			for (int j = 0; j < n - i; j++)
 			{
-				return Info[i].Id;
+				y[j][i] = (y[j][i - 1] - y[j + 1]
+										  [i - 1]) /
+						  (x[j] - x[i + j]);
 			}
 		}
-		return -1;
-	}
+	};
 
-	int Vertices()
+	// Function for applying Newton's
+	// divided difference formula
+	auto applyFormula = [&](float value, float x[], float y[][10], int n)
 	{
-		return N;
-	}
-	// Destinationructor
-	~Graph()
-	{
-		for (int i = 0; i < N; i++)
+		float sum = y[0][0];
+
+		for (int i = 1; i < n; i++)
 		{
-			delete[] Head[i];
+			sum = sum + (proterm(i, value, x) * y[0][i]);
 		}
+		return sum;
+	};
 
-		delete[] Head;
-	}
-};
-
-int random(int min, int max)
-{
-	int random_variable = rand();
-	return min + (random_variable % (max - min + 1));
-}
-
-int convert(int val)
-{
-	return 5 * val;
-}
-
-// Structure to represent a min heap node
-struct MinHeapNode
-{
-	int v;
-	int dist;
-};
-
-// Structure to represent a min heap
-struct MinHeap
-{
-
-	// Number of heap nodes present currently
-	int size;
-
-	// Capacity of min heap
-	int capacity;
-
-	// This is needed for decreaseKey()
-	int *pos;
-	struct MinHeapNode **array;
-};
-
-// A utility function to create a
-// new Min Heap Node
-struct MinHeapNode *newMinHeapNode(int v,
-								   int dist)
-{
-	struct MinHeapNode *minHeapNode =
-		(struct MinHeapNode *)
-			malloc(sizeof(struct MinHeapNode));
-	minHeapNode->v = v;
-	minHeapNode->dist = dist;
-	return minHeapNode;
-}
-
-// A utility function to create a Min Heap
-struct MinHeap *createMinHeap(int capacity)
-{
-	struct MinHeap *minHeap =
-		(struct MinHeap *)
-			malloc(sizeof(struct MinHeap));
-	minHeap->pos = (int *)malloc(
-		capacity * sizeof(int));
-	minHeap->size = 0;
-	minHeap->capacity = capacity;
-	minHeap->array =
-		(struct MinHeapNode **)
-			malloc(capacity *
-				   sizeof(struct MinHeapNode *));
-	return minHeap;
-}
-
-// A utility function to swap two
-// nodes of min heap.
-// Needed for min heapify
-void swapMinHeapNode(struct MinHeapNode **a,
-					 struct MinHeapNode **b)
-{
-	struct MinHeapNode *t = *a;
-	*a = *b;
-	*b = t;
-}
-
-// A standard function to
-// heapify at given idx
-// This function also updates
-// position of nodes when they are swapped.
-// Position is needed for decreaseKey()
-void minHeapify(struct MinHeap *minHeap,
-				int idx)
-{
-	int smallest, left, right;
-	smallest = idx;
-	left = 2 * idx + 1;
-	right = 2 * idx + 2;
-
-	if (left < minHeap->size &&
-		minHeap->array[left]->dist <
-			minHeap->array[smallest]->dist)
-		smallest = left;
-
-	if (right < minHeap->size &&
-		minHeap->array[right]->dist <
-			minHeap->array[smallest]->dist)
-		smallest = right;
-
-	if (smallest != idx)
+	// Function for displaying
+	// divided difference table
+	auto printDiffTable = [&](float y[][10], int n)
 	{
-		// The nodes to be swapped in min heap
-		MinHeapNode *smallestNode =
-			minHeap->array[smallest];
-		MinHeapNode *idxNode =
-			minHeap->array[idx];
-
-		// Swap positions
-		minHeap->pos[smallestNode->v] = idx;
-		minHeap->pos[idxNode->v] = smallest;
-
-		// Swap nodes
-		swapMinHeapNode(&minHeap->array[smallest],
-						&minHeap->array[idx]);
-
-		minHeapify(minHeap, smallest);
-	}
-}
-
-// A utility function to check if
-// the given minHeap is ampty or not
-int isEmpty(struct MinHeap *minHeap)
-{
-	return minHeap->size == 0;
-}
-
-// Standard function to extract
-// minimum node from heap
-struct MinHeapNode *extractMin(struct MinHeap *
-								   minHeap)
-{
-	if (isEmpty(minHeap))
-		return NULL;
-
-	// Store the root node
-	struct MinHeapNode *root =
-		minHeap->array[0];
-
-	// Replace root node with last node
-	struct MinHeapNode *lastNode =
-		minHeap->array[minHeap->size - 1];
-	minHeap->array[0] = lastNode;
-
-	// Update position of last node
-	minHeap->pos[root->v] = minHeap->size - 1;
-	minHeap->pos[lastNode->v] = 0;
-
-	// Reduce heap size and heapify root
-	--minHeap->size;
-	minHeapify(minHeap, 0);
-
-	return root;
-}
-
-// Function to decreasy dist value
-// of a given vertex v. This function
-// uses pos[] of min heap to get the
-// current index of node in min heap
-void decreaseKey(struct MinHeap *minHeap,
-				 int v, int dist)
-{
-	// Get the index of v in  heap array
-	int i = minHeap->pos[v];
-
-	// Get the node and update its dist value
-	minHeap->array[i]->dist = dist;
-
-	// Travel up while the complete
-	// tree is not hepified.
-	// This is a O(Logn) loop
-	while (i && minHeap->array[i]->dist <
-					minHeap->array[(i - 1) / 2]->dist)
-	{
-		// Swap this node with its parent
-		minHeap->pos[minHeap->array[i]->v] =
-			(i - 1) / 2;
-		minHeap->pos[minHeap->array[(i - 1) / 2]->v] = i;
-		swapMinHeapNode(&minHeap->array[i],
-						&minHeap->array[(i - 1) / 2]);
-
-		// move to parent index
-		i = (i - 1) / 2;
-	}
-}
-
-// A utility function to check if a given vertex
-// 'v' is in min heap or not
-bool isInMinHeap(struct MinHeap *minHeap, int v)
-{
-	if (minHeap->pos[v] < minHeap->size)
-		return true;
-	return false;
-}
-
-struct Warehouse
-{
-	int Id;
-	int dist;
-};
-
-// A utility function used to print the solution
-void SmallestRoute(int dist[], int n, int src, int dest)
-{
-	cout << "Time taken from warehouse " << Info[src].Name << " to reach hospital " << Info[dest].Name << " is " << convert(dist[dest]) << " minutes." << endl;
-}
-
-// The main function that calculates
-// distances of shortest paths from src to all
-// vertices. It is a O(ELogV) function
-Warehouse dijkstra(Graph *graph, int src, int dest)
-{
-
-	// Get the number of vertices in graph
-	int V = graph->Vertices();
-
-	// dist values used to pick
-	// minimum weight edge in cut
-	int dist[V];
-
-	// minHeap represents set E
-	struct MinHeap *minHeap = createMinHeap(V);
-
-	// Initialize min heap with all
-	// vertices. dist value of all vertices
-	for (int v = 0; v < V; ++v)
-	{
-		dist[v] = INT32_MAX;
-		minHeap->array[v] = newMinHeapNode(v, dist[v]);
-		minHeap->pos[v] = v;
-	}
-
-	// Make dist value of src vertex
-	// as 0 so that it is extracted first
-	minHeap->array[src] =
-		newMinHeapNode(src, dist[src]);
-	minHeap->pos[src] = src;
-	dist[src] = 0;
-	decreaseKey(minHeap, src, dist[src]);
-
-	// Initially size of min heap is equal to V
-	minHeap->size = V;
-
-	// In the followin loop,
-	// min heap contains all nodes
-	// whose shortest distance
-	// is not yet finalized.
-	while (!isEmpty(minHeap))
-	{
-		// Extract the vertex with
-		// minimum distance value
-		struct MinHeapNode *minHeapNode =
-			extractMin(minHeap);
-
-		// Store the extracted vertex number
-		int u = minHeapNode->v;
-
-		// Traverse through all adjacent
-		// vertices of u (the extracted
-		// vertex) and update
-		// their distance values
-		Node *pCrawl =
-			graph->Head[u];
-		while (pCrawl != NULL)
+		for (int i = 0; i < n; i++)
 		{
-			int v = pCrawl->Val;
-
-			// If shortest distance to v is
-			// not finalized yet, and distance to v
-			// through u is less than its
-			// previously calculated distance
-			if (isInMinHeap(minHeap, v) &&
-				dist[u] != INT32_MAX &&
-				pCrawl->Traffic + dist[u] < dist[v])
+			for (int j = 0; j < n - i; j++)
 			{
-				dist[v] = dist[u] + pCrawl->Traffic;
-
-				// update distance
-				// value in min heap also
-				decreaseKey(minHeap, v, dist[v]);
+				cout << setprecision(4) << y[i][j] << "\t ";
 			}
-			pCrawl = pCrawl->Next;
+			cout << "\n";
 		}
-	}
+	};
 
-	// print the calculated shortest distances
-	SmallestRoute(dist, V, src, dest);
-	Warehouse w = {src, dist[dest]};
-	return w;
+	// Driver Function
+	// number of inputs given
+	int n = 4;
+	float value, sum, y[10][10];
+	float x[] = {5, 6, 9, 11};
+
+	// y[][] is used for divided difference
+	// table where y[][0] is used for input
+	y[0][0] = 12;
+	y[1][0] = 13;
+	y[2][0] = 14;
+	y[3][0] = 16;
+
+	// calculating divided difference table
+	dividedDiffTable(x, y, n);
+
+	// displaying divided difference table
+	printDiffTable(y, n);
+
+	// value to be interpolated
+	value = 7;
+
+	// printing the value
+	cout << "\nValue at " << value << " is "
+		 << applyFormula(value, x, y, n) << endl;
+	return 0;
 }
 
-Graph *CreateMap()
+int NewtonForwardInterpolation()
 {
-
-	Edge Edges[19] =
-		{
-			// pair `(x, y)` represents an edge from `x` to `y`
-			{0, 5},
-			{1, 5},
-			{1, 2},
-			{2, 3},
-			{2, 4},
-			{3, 5},
-			{3, 6},
-			{4, 7},
-			{4, 8},
-			{5, 9},
-			{5, 10},
-			{6, 5},
-			{7, 6},
-			{7, 10},
-			{8, 7},
-			{8, 0},
-			{9, 2},
-			{9, 3},
-			{10, 9}};
-	for (int i = 0; i < sizeof(Edges) / sizeof(Edges[0]); i++)
+	auto u_cal = [&](float u, int n)
 	{
-		Edges[i].Traffic = random(1, 10);
+		float temp = u;
+		for (int i = 1; i < n; i++)
+			temp = temp * (u - i);
+		return temp;
+	};
+
+	// calculating factorial of given number n
+	auto fact = [&](int n)
+	{
+		int f = 1;
+		for (int i = 2; i <= n; i++)
+			f *= i;
+		return f;
+	};
+
+	// Number of values given
+	int n = 4;
+	float x[] = {45, 50, 55, 60};
+
+	// y[][] is used for difference table
+	// with y[][0] used for input
+	float y[n][n];
+	y[0][0] = 0.7071;
+	y[1][0] = 0.7660;
+	y[2][0] = 0.8192;
+	y[3][0] = 0.8660;
+
+	// Calculating the forward difference
+	// table
+	for (int i = 1; i < n; i++)
+	{
+		for (int j = 0; j < n - i; j++)
+			y[j][i] = y[j + 1][i - 1] - y[j][i - 1];
 	}
-	// total number of nodes in the graph
-	int N = 11;
 
-	// calculate the total number of Edges
-	int n = 19;
+	// Displaying the forward difference table
+	for (int i = 0; i < n; i++)
+	{
+		cout << setw(4) << x[i]
+			 << "\t";
+		for (int j = 0; j < n - i; j++)
+			cout << setw(4) << y[i][j]
+				 << "\t";
+		cout << endl;
+	}
 
-	// construct graph
-	Graph *Graphic = new Graph(Edges, n, N);
+	// Value to interpolate at
+	float value = 52;
 
-	return Graphic;
+	// initializing u and sum
+	float sum = y[0][0];
+	float u = (value - x[0]) / (x[1] - x[0]);
+	for (int i = 1; i < n; i++)
+	{
+		sum = sum + (u_cal(u, i) * y[0][i]) /
+						fact(i);
+	}
+
+	cout << "\n Value at " << value << " is "
+		 << sum << endl;
+	return 0;
 }
 
-//--Graph implementation in C++ without using STL
+int NewtonBackwardInterpolationMethod()
+{
+	auto u_cal = [&](float u, int n)
+	{
+		float temp = u;
+		for (int i = 1; i < n; i++)
+			temp = temp * (u + i);
+		return temp;
+	};
+
+	// Calculating factorial of given n
+	auto fact = [&](int n)
+	{
+		int f = 1;
+		for (int i = 2; i <= n; i++)
+			f *= i;
+		return f;
+	};
+
+	// number of values given
+	int n = 5;
+	float x[] = {1891, 1901, 1911,
+				 1921, 1931};
+
+	// y[][] is used for difference
+	// table and y[][0] used for input
+	float y[n][n];
+	y[0][0] = 46;
+	y[1][0] = 66;
+	y[2][0] = 81;
+	y[3][0] = 93;
+	y[4][0] = 101;
+
+	// Calculating the backward difference table
+	for (int i = 1; i < n; i++)
+	{
+		for (int j = n - 1; j >= i; j--)
+			y[j][i] = y[j][i - 1] - y[j - 1][i - 1];
+	}
+
+	// Displaying the backward difference table
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j <= i; j++)
+			cout << setw(4) << y[i][j]
+				 << "\t";
+		cout << endl;
+	}
+
+	// Value to interpolate at
+	float value = 1925;
+
+	// Initializing u and sum
+	float sum = y[n - 1][0];
+	float u = (value - x[n - 1]) / (x[1] - x[0]);
+	for (int i = 1; i < n; i++)
+	{
+		sum = sum + (u_cal(u, i) * y[n - 1][i]) /
+						fact(i);
+	}
+
+	cout << "\n Value at " << value << " is "
+		 << sum << endl;
+	return 0;
+}
+int LagrangeInterpolationMethod()
+{
+	struct Data
+	{
+		int x, y;
+	};
+
+	// function to interpolate the given data points using Lagrange's formula
+	// xi corresponds to the new data point whose value is to be obtained
+	// n represents the number of known data points
+	auto interpolate = [&](Data f[], int xi, int n)
+	{
+		double result = 0; // Initialize result
+
+		for (int i = 0; i < n; i++)
+		{
+			// Compute individual terms of above formula
+			double term = f[i].y;
+			for (int j = 0; j < n; j++)
+			{
+				if (j != i)
+					term = term * (xi - f[j].x) / double(f[i].x - f[j].x);
+			}
+
+			// Add current term to result
+			result += term;
+		}
+
+		return result;
+	};
+
+	// driver function to check the program
+
+	// creating an array of 4 known data points
+	Data f[] = {{0, 2}, {1, 3}, {2, 12}, {5, 147}};
+
+	// Using the interpolate function to obtain a data point
+	// corresponding to x=3
+	cout << "Value of f(3) is : " << interpolate(f, 3, 5);
+
+	return 0;
+}
 int main()
 {
-	srand(time(nullptr)); //use current time as seed for random generator
-
-	Graph *G = CreateMap();
-	Sleep(1000);
-	cout << " -------- Welcome to Covid-19 Resource Delivery System ----------- \n\n";
-
-	cout << "For the purpose of this demonstration, we have considered 8 hospitals and 3 warehouses\n";
-
-	cout << "Details of the above is as follows : \n";
-
-	for (int i = 0; i < Assets; i++)
-	{
-		if (Info[i].Type == "h")
-		{
-			cout << "Hospital : " << Info[i].Name << ", " << Info[i].Address << endl;
-		}
-		else
-		{
-			cout << "Warehouse : " << Info[i].Name << ", " << Info[i].Address << endl;
-		}
-	}
-	cout << "\n";
-	G->printGraph();
-
-	cout << "Enter the name of hospital that require resources : ";
-	string hospital;
-	cin >> hospital;
-
-	int a, b, c;
-	cout << "Enter the required no of oxygen cylinders/concentrator : ";
-	cin >> a;
-	cout << "Enter the required no of PPE kit : ";
-	cin >> b;
-	cout << "Enter the required no of remdesivir : ";
-	cin >> c;
-
-	int dest = G->findDestinationId(hospital, a, b, c);
-	cout << endl;
-
-	if (dest == -1)
-	{
-		cout << "Invalid hospital name. Please enter a valid hospital name." << endl;
-	}
-	else
-	{
-		Warehouse fastest = {-1, INT32_MAX};
-
-		for (int i = 8; i < 11; i++)
-		{
-			Warehouse temp = dijkstra(G, Info[i].Id, dest);
-			if (temp.dist < fastest.dist)
-				fastest = temp;
-		}
-
-		cout << "\nAmong these, the most efficient warehouse for delivering the required resources is : ";
-
-		cout << Info[fastest.Id].Name << endl;
-	}
-	system("pause");
+	LagrangeInterpolationMethod();
 	return 0;
 }

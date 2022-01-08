@@ -12,9 +12,11 @@ int BisectionMethod()
 
 	auto bisection = [&](double a, double b)
 	{
+		cout << "Equation Used For The Bisection Method: x^3-x^2+2 " << endl;
+
 		if (Function(a) * Function(b) >= 0)
 		{
-			cout << "You have not asSumed right a and b\n";
+			cout << "You have not assumed right a and b\n";
 			return;
 		}
 
@@ -42,6 +44,7 @@ int BisectionMethod()
 
 int NRMethod()
 {
+	cout << "Equation Used For The Newton Raphson Method: x^3-x^2+2 " << endl;
 	auto Function = [&](double x)
 	{
 		return x * x * x - x * x + 2;
@@ -157,9 +160,6 @@ int NewtonForwardInterpolation()
 		return f;
 	};
 
-
-
-
 	int n = 4;
 	float x[] = {45, 50, 55, 60};
 
@@ -259,6 +259,7 @@ int NewtonBackwardInterpolationMethod()
 }
 int LagrangeInterpolationMethod()
 {
+
 	struct Data
 	{
 		int x, y;
@@ -285,7 +286,8 @@ int LagrangeInterpolationMethod()
 	};
 
 	Data f[] = {{0, 2}, {1, 3}, {2, 12}, {5, 147}};
-
+	cout << "Let The Coordinates Are (x,y)= {0, 2}, {1, 3}, {2, 12}, {5, 147}\n\n";
+	cout<<" Finding the Value Of F(x) At X=3\n";
 	cout << "Value of f(3) is : " << interpolate(f, 3, 5);
 
 	return 0;
@@ -370,6 +372,7 @@ int SecantMethod()
 		float f = pow(x, 3) + x - 1;
 		return f;
 	};
+	cout << "Equation Used For The Bisection Method: x^3+x-1 " << endl;
 
 	auto secant = [&](float x1, float x2, float E)
 	{
@@ -475,9 +478,10 @@ int StirlingMethod()
 	float x[] = {0, 0.5, 1.0, 1.5, 2.0};
 	float fx[] = {0, 0.191, 0.341, 0.433,
 				  0.477};
-
+	cout << "Let The Coordinates Are (x,y)= (0,0),(0.5,0.191),(1.0,0.341),(1.5,0.433),(2.0,0.477)\n\n";
+	cout<<"Finding the Value Of F(x) At X=1.22\n";
 	float x1 = 1.22;
-
+cout<<"The Value Of F(x) At X=1.22 Is: ";
 	Stirling(x, fx, x1, n);
 	return 0;
 }
@@ -502,50 +506,49 @@ int main()
 	switch (choose)
 	{
 	case 1:
-		cout<<endl;
+		cout << endl;
 		BisectionMethod();
 		break;
 	case 2:
-		cout <<endl;
-		 SecantMethod();
+		cout << endl;
+		SecantMethod();
 		break;
 	case 3:
-		cout<<endl;
+		cout << endl;
 		NewtonForwardInterpolation();
 		break;
 	case 4:
-		cout<<endl;
+		cout << endl;
 		NewtonBackwardInterpolationMethod();
 		break;
 	case 5:
-		cout<<endl;
+		cout << endl;
 		NewtonDividedDifferenceMethod();
 		break;
 	case 6:
-		cout<<endl;
+		cout << endl;
 		NRMethod();
 		break;
 	case 7:
-		cout<<endl;
+		cout << endl;
 		LagrangeInterpolationMethod();
 		break;
 	case 8:
-		cout<<endl;
-		cout<<"Value of f(x) at 1.22= ";
+		cout << endl;
 		StirlingMethod();
 		break;
 	case 9:
-		cout<<endl;
-		cout<<"Integral of logx from 4 to 5.2 = \n";
+		cout << endl;
+		cout << "Integral of logx from 4 to 5.2 = \n";
 		Simpson13Rule();
 		break;
 	case 10:
-		cout<<endl;
-		cout<<"Integral of logx from 1 to 10 = \n";
+		cout << endl;
+		cout << "Integral of logx from 1 to 10 = \n";
 		Simpsons38Rule();
 		break;
 	default:
-		cout<<"Wrong number selected\n";
+		cout << "Wrong number selected\n";
 	}
 
 	return 0;

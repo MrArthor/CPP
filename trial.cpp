@@ -1,74 +1,63 @@
-#include <iostream.h>
-class student
-{
-protected:
-    int roll_number;
+// C++ code to print all possible
+// subsequences for given array using
+// recursion
+#include <bits/stdc++.h>
+using namespace std;
 
-public:
-    void get_number(int a)
-    {
-        roll_number = a;
-    }
-    void put_number(void)
-    {
-        cout << "Roll No:" << roll_number << "\n";
-    }
-};
-class test : public student
+// Recursive function to print all
+// possible subsequences for given array
+int ktastic(int n, int k, vector<int> arr)
 {
-protected:
-    float part1, part2;
+int count = 0;
+    auto printSubsequences = [&](vector<int> arr, int index,
+                                 vector<int> subarr, int n)
+    {
+        // Print the subsequence when reach
+        // the leaf of recursion tree
+        bool truth = true;
+        if (index == n)
+        {
+            for (auto it : subarr)
+            {
+                if (it == k && truth)
+                {
+                    count++;
+                    truth == false;
+                }
+            }
+            if (subarr.size() == 0)
 
-public:
-    void get_marks(float x, float y)
-    {
-        part1 = x;
-        part2 = y;
-    }
-    void put_marks(void)
-    {
-        cout << "Marks obtained"
-             << "\n"
-             << "part1 =" << part1 << "\n"
-             << "part2 =" << part2 << "\n";
-    }
-};
-class sports
-{
-protected:
-    float score;
+                cout << endl;
+            return;
+        }
+        else
+        {
+            // pick the current index into the subsequence.
+            subarr.push_back(arr[index]);
 
-public:
-    void get_score(float s)
-    {
-        score = s;
-    }
-    void put_score(void)
-    {
-        cout << "Sports wt:" << score << "\n\n";
-    }
-};
-class result : public test, public sports
-{
-    float total;
+            printSubsequences(arr, index + 1, subarr, n);
 
-public:
-    void display(void);
-};
-void result ::display(void)
-{
-    total = part1 + part2 + score;
-    put_number();
-    put_marks();
-    put_score();
-    cout << "Total Score:" << total << "\n";
+            subarr.pop_back();
+
+            // not picking the element into the subsequence.
+            printSubsequences(arr, index + 1, subarr, n);
+        }
+    };
+    while (n--)
+    {
+        count = 0;
+        vector<int> vec;
+        printSubsequences(arr, 0, vec, n);
+
+        return count;
+    }
 }
+
+// Driver Code
 int main()
 {
-    result student_1;
-    student_1.get_number(1234);
-    student_1.get_marks(27.5, 33.0);
-    student_1.get_score(6.0);
-    student_1.display();
+    int arr[] = {1, 2, 3};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
     return 0;
 }

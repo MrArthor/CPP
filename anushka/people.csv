@@ -1,4 +1,4 @@
-Age,agegroup,height,status,yearsmarried
+age,agegroup,height,status,yearsmarried
 21,adult,6,single,-1
 2,child,3,married,0
 18,adult,5.7,married,20

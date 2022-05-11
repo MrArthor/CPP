@@ -1,44 +1,34 @@
-#include <bits/stdc++.h>
- 
+#include<iostream>
+#include<conio.h>
 using namespace std;
-unordered_multiset<long long> us;
- 
- 
-int main() 
+
+template<class swap>
+
+void swapp(swap &i, swap &j)
 {
-	ios_base::sync_with_stdio(0);
-    cin.tie(0);
+    swap t;
+    t=i;
+    i=j;
+    j=t;
+}
  
-	int t;
-	cin>>t;
-	while(t--)
-	{
-		int n,m;
-		cin>>n>>m;
-		for(int long long i=1;i<=n;i++)
-		{
-			int long long x;
-            cin>>x;
-			us.insert(x);
-		}
-		for(int long long i=1;i<=m;i++)
-		{
-			int long long p;
-			cin>>p;
-			auto it=us.find(p);
-			if(it!=us.end())
-			{
-				cout<<"YES\n";
-			}
-			else 
-			{
-				cout<<"NO\n";
-				us.insert(p);
- 
-			}
-		}
-		us.clear();
- 
-	}
-	return 0;
+int main() {
+    int e,f;
+    char g,r;
+    float x,y;
+
+    cout<<"\n Please insert 2 Integer Values:"; cin>>e>>f;
+    swapp(e,f);
+    cout<<"\nInteger values after Swapping:";
+    cout<<e<<"\t"<<f<<"\n\n";
+    
+    cout<<"\n Please insert 2 Character Values:"; cin>>g>>r;
+    swapp(g,r);
+    cout<<"\n Character Values after Swapping:";
+    
+    cout<<g<<"\t"<<r<<"\n\n";
+    cout<<"\n please insert 2 Float Values:"; cin>>x>>y;
+    swapp(x,y);
+    cout<<"\n The resultatnt float values after swapping:";
+    cout<<x<<"\t"<<y<<"\n\n";
 }

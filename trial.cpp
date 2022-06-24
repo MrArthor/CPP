@@ -1,38 +1,7 @@
-#include<bits/stdc++.h>
+"
+hie!,
+so just in case you are still wondering why did the codes didn't work so the reason is that c/c++ compilers are mainly of two types 1. gcc and 2. microsoft visual studio.  in both of these have problems of their own like ms one doesn't support bits/stdc++.h and advanced templates like unordered maps and stuff and being backed by ms it's the one who defines what's legal and what isn't legal. in gcc it's like windows gcc supports fee things but doesn't work on linux but the most of the servers uses linux it makes the programs wirtten on windows based gcc mingw sometimes crash this problems also comes on competitive programming platforms like CodeForces. ( hackerrank and code chef doesn't have this problem lol ). and apparently i just got to know that mettl uses microsoft visual studio compiler based on  it's linux servers. so next time onwards ms c++ compiler codes are supposed to be written by us.
 
-using namespace std;
+for second ques ig the issue was with python versioning like latest python 3.10 doesn't support earlier versions and vice versa is also true .
 
-
-int SumOfCommonAlpha(char input1[],char input2[]){
-    int sum=0;
-  
-   int a1[26] = {0};
-   int a2[26] = {0};
-   int i , j;
-   char ch;
-   char ch1 = 'a';
-   int k = (int)ch1, m;
-   for(i = 0 ; i < input1[i] ; i++){
-      a1[(int)input1[i] - k]++;
-   }
-   for(i = 0 ; i < input2[i] ; i++){
-      a2[(int)input2[i] - k]++;
-   }
-   for(i = 0 ; i < 26 ; i++){
-      if (a1[i] != 0 and a2[i] != 0){
-         for(j = 0 ; j < min(a1[i] , a2[i]) ; j++){
-            m = k + i;
-            ch = (char)(k + i);
-            sum+=ch;
-         }
-      }
-   }
-   return sum;
-}
-int main(){
-
-    char input1[] = {'a','b','c','\0'};
-    char input2[] = {'b','c','\0'};
-   cout<< SumOfCommonAlpha(input1,input2);
-    return 0;
-}
+"

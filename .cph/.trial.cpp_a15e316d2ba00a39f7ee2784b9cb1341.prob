@@ -1,0 +1,1 @@
+{"name":"Local: trial","url":"d:\\Drive\\Google Drive\\Codes\\CPP\\trial.cpp","tests":[{"id":1666192883263,"input":"3\n4\naaaa\naaab\n1\nc\nz\n5\nabcde\ncdefg","output":"3\n0\n1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"d:\\Drive\\Google Drive\\Codes\\CPP\\trial.cpp","group":"local","local":true}

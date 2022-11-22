@@ -1,21 +1,14 @@
-s1=['a','b','c']
+test_string=input("Enter string:")
+l=test_string.split()
+d={}
 
-s2= ['b','c']
-def digSum(cls,input1,input2):
-    a=list(set(input1)&set(input2))
-    sum=0
-    n=0
-    for i in a:
-        n+=ord(i)
-
-
-
-    if (n == 0):
-        return 0
-    if (n % 9 == 0):
-        return 9
+for word in l:
+    if(word[0] not in d.keys()):
+        d[word[0]]=[]
+        d[word[0]].append(word)
     else:
-       return (n % 9)
-     
-     
-print(digSum('.',s1,s2))
+        if(word not in d[word[0]]):
+          d[word[0]].append(word)
+words=""
+for k,v in d.items():
+        words=words+k+":"+v

@@ -1,14 +1,18 @@
-test_string=input("Enter string:")
-l=test_string.split()
-d={}
+def countFreq(arr, n):
 
-for word in l:
-    if(word[0] not in d.keys()):
-        d[word[0]]=[]
-        d[word[0]].append(word)
-    else:
-        if(word not in d[word[0]]):
-          d[word[0]].append(word)
-words=""
-for k,v in d.items():
-        words=words+k+":"+v
+	mp = dict()
+
+	for i in range(n):
+		if arr[i] in mp.keys():
+			mp[arr[i]] += 1
+		else:
+			mp[arr[i]] = 1
+			
+    sorted(mp.items(), key=lambda item: item[1])
+	
+
+# Driver code
+arr = [10, 20, 20, 10, 10, 20, 5, 20 ]
+n = len(arr)
+countFreq(arr, n)
+

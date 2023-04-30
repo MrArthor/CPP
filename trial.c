@@ -5,17 +5,17 @@
 #include<Windows.h>
 
 
-struct mufti_airline
+struct Jiit_airline
 {
 	char passport[6];
 	char name[15];
     char destination[15];
 	int seat_num;
 	char email[15];
-	struct mufti_airline *following;
+	struct Jiit_airline *following;
 }
 *begin, *stream;
-struct mufti_airline *dummy;
+struct Jiit_airline *dummy;
 
 
 int main()
@@ -28,7 +28,7 @@ int main()
 	{
 		
 		printf("\n\n\t\t ********************************************************************");
-		printf("\n\t\t                   welcome to Sharath's airline system                   ");
+		printf("\n\t\t                   welcome to FOCP's airline system                   ");
 		printf("\n\t\t   *******************************************************************");
 		printf("\n\n\n\t\t Please enter your choice from below (1-4):");
 		printf("\n\n\t\t 1. Reservation");
@@ -41,7 +41,7 @@ int main()
 
 
 		scanf("%d", &choice); fflush(stdin);
-		system("cls");
+		system("cls");//clears the screen
 		switch (choice)
 		{
 		case 1:
@@ -90,7 +90,7 @@ void reserve(int x)
 	if (begin == NULL)
 	{
 		// first user
-		begin = stream = (struct mufti_airline*)malloc(sizeof(struct mufti_airline));
+		begin = stream = (struct Jiit_airline*)malloc(sizeof(struct Jiit_airline));
 		details();
 		stream->following = NULL;
 		printf("\n\t Seat booking successful!");
@@ -108,7 +108,7 @@ void reserve(int x)
 		// next user
 		while (stream->following)
 			stream = stream->following;
-		stream->following = (struct mufti_airline *)malloc(sizeof(struct mufti_airline));
+		stream->following = (struct Jiit_airline *)malloc(sizeof(struct Jiit_airline));
 		stream = stream->following;
 		details();
 		stream->following = NULL;
@@ -123,7 +123,7 @@ void reserve(int x)
 
 void savefile()
 {
-	FILE *fpointer = fopen("mufti records", "w");
+	FILE *fpointer = fopen("jiit records", "w");
 	if (!fpointer)
 	{
 		printf("\n Error in opening file!");
@@ -131,6 +131,7 @@ void savefile()
 		Sleep(800);
 	}
 	stream = begin;
+
 	while (stream)
 	{
 		fprintf(fpointer, "%-6s", stream->passport);
@@ -140,10 +141,10 @@ void savefile()
         fprintf(fpointer, "\n");
 		stream = stream->following;
 	}
-	printf("\n\n\t Details have been saved to a file (mufti records)");
+	printf("\n\n\t Details have been saved to a file (jiit records)");
 	fclose(fpointer);
 }
-//********************************GOOD LUCK MUFTI***************************************
+//********************************GOOD LUCK JIIT***************************************
 
 void display()
 {

@@ -1,17 +1,17 @@
-#include <stdio.h>
 
-int main()
+
+
+if(
+P1->Point_caculateDistance(P2)+P2->Point_caculateDistance(P3)>= P1->Point_caculateDistance(P3)
+P1->Point_caculateDistance(P2)+P1->Point_caculateDistance(P3)>= P2->Point_caculateDistance(P3)
+P3->Point_caculateDistance(P2)+P3->Point_caculateDistance(P1)>= P2->Point_caculateDistance(P1))
 {
-    char B[30];
-    scanf("%s", B);
-    int count = 0;
-    for (int i = 0; B[i] != '\0'; i++)
-    {
-        if (B[i] == ' ')
-        {
-            count++;
-        }
-    }
-    printf("%d", count + 1);
+    return 1;
+}
+else
+{
     return 0;
 }
+```
+}
+```

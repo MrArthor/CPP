@@ -1,1 +1,1 @@
-{"name":"Local: trial","url":"c:\\Users\\vansh\\OneDrive\\Codes\\CPP\\trial.cpp","tests":[],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"c:\\Users\\vansh\\OneDrive\\Codes\\CPP\\trial.cpp","group":"local","local":true}
+{"name":"Local: trial","url":"c:\\Users\\vansh\\OneDrive\\Codes\\CPP\\trial.cpp","tests":[{"id":1697487796748,"input":"10\n95 -97 -387 -435 -5 -70 897 127 23 284","output":"5"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"c:\\Users\\vansh\\OneDrive\\Codes\\CPP\\trial.cpp","group":"local","local":true}

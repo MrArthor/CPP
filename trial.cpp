@@ -1,17 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
 
-
-
-if(
-P1->Point_caculateDistance(P2)+P2->Point_caculateDistance(P3)>= P1->Point_caculateDistance(P3)
-P1->Point_caculateDistance(P2)+P1->Point_caculateDistance(P3)>= P2->Point_caculateDistance(P3)
-P3->Point_caculateDistance(P2)+P3->Point_caculateDistance(P1)>= P2->Point_caculateDistance(P1))
+int maxLen(int arr[], int N)
 {
-    return 1;
+	int max_len = 0; 
+
+	for (int i = 0; i < N; i++) {
+
+	
+		int curr_sum = 0;
+
+		for (int j = i; j < N; j++) {
+			curr_sum += arr[j];
+
+			
+			if (curr_sum == 0)
+				max_len = max(max_len, j - i + 1);
+		}
+	}
+	return max_len;
 }
-else
+
+int main()
 {
-    return 0;
+	int N;
+    cin>>N;
+	int arr[N] ;
+for(int i=0;i<N;i++)
+cin>>arr[i];
+
+	cout<< maxLen(arr, N);
+	return 0;
 }
-```
-}
-```
